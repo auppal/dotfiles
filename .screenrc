@@ -1,0 +1,51 @@
+# Written by Ahsen Uppal
+# Copyright (C) 2015, Ahsen Uppal
+# All rights reserved.
+#
+
+escape ^jj
+vbell off
+vbell_msg "  Bell  "
+startup_message off
+
+# i don't remember what's special about "\0163" = s
+#bindkey "\0163"
+bind s
+
+# special xterm hardstatus: use the window title.
+#termcapinfo xterm 'hs:ts=\E]2;:fs=\007:ds=\E]2;screen\007'
+#hardstatus string "[screen %n%?: %t%?] %h"
+#hardstatus string "+%n%?: %t%?: %h"
+#hardstatus off
+
+defscrollback 8192
+
+bind x
+bind ^X
+
+# emacs-like bindings for copy mode
+bindkey -m "^B" stuff h
+bindkey -m "^F" stuff l
+bindkey -m "^E" stuff $
+bindkey -m "^V" stuff ^F
+bindkey -m "^U" stuff ^B
+bindkey -m "^ " stuff " "
+bindkey -m "^[f" stuff e
+bindkey -m "^[b" stuff b
+# otherwise, you must hit escape to break an i-search
+bindkey -m "^G" stuff ^[
+bindkey -m "^[w" stuff "^M"
+
+#bind ^Y eval "stuff cat" "stuff ^M" "paste ." "paste ." "stuff ^D"
+#bind ^Y eval "stuff cat^M" "stuff hello.." "stuff ^D"
+#bind ^Y eval "stuff cat" "stuff ^M" "paste 1" "stuff ^D"
+#bind ^Y eval "writebuf /tmp/hello"
+
+#bindkey -m "^M" stuff ">"
+bind "^X" eval "writebuf" "screen /home/auppal/bin/daemon -- xclip -in /tmp/screen-exchange"
+#bind "^Y" eval "screen /home/auppal/bin/daemon -- xclip -out > /tmp/out"
+#bind  "^Y" eval "screen xclip-out.sh" "echo reading" "readbuf" "paste"
+#bind "^Y" stuff ^[[2~
+#bind "^Y" stuff "\0033\0133\0062\0176"
+
+#"screen xclip -in /tmp/foo&!" "echo done"
