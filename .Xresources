@@ -1,0 +1,16 @@
+! Written by Ahsen Uppal
+! Copyright (C) 2015, Ahsen Uppal
+! All rights reserved.
+
+! To merge this file, run:
+! xrdb -merge $HOME/.Xresources
+
+! Fix xterm alt+key sequences
+xterm*eightBitInput: false
+xterm*backarrowKey: false
+! xterm fast scrolling is useful but very ugly
+! xterm*fastScroll: true
+
+! Disable perl extensions in urxvt
+URxvt.perl-ext:
+URxvt.perl-ext-common:
