@@ -108,4 +108,4 @@ bindkey "^Y" yank
 bindkey "^[h" backward-delete-word
 fi
 
-source .zshrc_private
+source .zshrc_private >& /dev/null
