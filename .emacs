@@ -61,19 +61,14 @@
 (if (fboundp 'blink-cursor-mode) (blink-cursor-mode 0))
 (set-cursor-color "orange")
 
-;; Subversion
-;;;(require 'vc-svn)
-;;;(add-to-list 'vc-handled-backends 'SVN)
-;;;;(load "psvn.el" nil t t)
-
-;;(setq pop-up-frames t)
+(setq pop-up-frames t)
 (require 'ibuffer)
 ;;(require 'dict)
 (define-key global-map "\C-x\C-b" 'ibuffer)
 
-(load "50auctex-gentoo.el" nil t t)
-;; No longer in gentoo auctex
-;;(load "preview-latex.el" nil t t)
+(load "auctex.el" nil t t)
+(load "preview-latex.el" nil t t)
+(set-default 'preview-scale-function 1.5)
 
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
@@ -120,4 +115,7 @@
 
 ;; The manual says:
 ;; Prior to Emacs 24, the kill and yank commands used the primary selection
+(setq x-select-enable-clipboard nil)
 (setq x-select-enable-primary t)
+(setq mouse-drag-copy-region t)
+
