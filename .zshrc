@@ -100,7 +100,7 @@ setopt hist_ignore_space # No saving for cmds beginning with a space
 # correction
 # setopt correctall
 
-if which xclip >& /dev/null; then
+if which xclip >& /dev/null && [ $DISPLAY ]; then
     kill-line() { zle .kill-line ; echo -n $CUTBUFFER | xclip -i }
     zle -N kill-line
     yank() { LBUFFER=$LBUFFER$(xclip -o) }
