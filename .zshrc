@@ -6,6 +6,7 @@
 case $OSTYPE in
     linux*)
         alias ls='ls --color=auto'
+        alias grep='grep --color=auto'
         alias e='emacs -fg grey -bg black -fn 7x14'
         which emacs-gnuclient-start >& /dev/null && alias e=emacs-gnuclient-start
     ;;
@@ -19,6 +20,7 @@ esac
 alias la='ls -a'
 alias lf='ls -FA'
 alias ll='ls -lArt'
+alias l='ls -lArt'
 alias xo=xdg-open
 
 
@@ -99,13 +101,15 @@ setopt hist_ignore_space # No saving for cmds beginning with a space
 # setopt correctall
 
 if which xclip >& /dev/null; then
-kill-line() { zle .kill-line ; echo -n $CUTBUFFER | xclip -i }
-zle -N kill-line
-yank() { LBUFFER=$LBUFFER$(xclip -o) }
-zle -N yank
+    kill-line() { zle .kill-line ; echo -n $CUTBUFFER | xclip -i }
+    zle -N kill-line
+    yank() { LBUFFER=$LBUFFER$(xclip -o) }
+    zle -N yank
+fi
+
+bindkey -e
 bindkey "^K" kill-line
 bindkey "^Y" yank
 bindkey "^[h" backward-delete-word
-fi
 
-source .zshrc_private >& /dev/null
+source ~/.zshrc_private >& /dev/null
