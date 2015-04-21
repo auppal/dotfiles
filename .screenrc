@@ -7,19 +7,10 @@ escape ^jj
 vbell off
 vbell_msg "  Bell  "
 startup_message off
-
-# i don't remember what's special about "\0163" = s
-#bindkey "\0163"
-bind s
-
-# special xterm hardstatus: use the window title.
-#termcapinfo xterm 'hs:ts=\E]2;:fs=\007:ds=\E]2;screen\007'
-#hardstatus string "[screen %n%?: %t%?] %h"
-#hardstatus string "+%n%?: %t%?: %h"
-#hardstatus off
-
+hardstatus off
 defscrollback 8192
 
+bind s
 bind x
 bind ^X
 
