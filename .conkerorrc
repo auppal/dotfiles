@@ -1,0 +1,17 @@
+// Written by Ahsen Uppal
+// Copyright (C) 2015, Ahsen Uppal
+// All rights reserved.
+// Reload with M-x reinit
+
+define_webjump("ino", "https://inoreader.com")
+define_webjump("cal", "https://www.google.com/calendar")
+define_webjump("gmail", "https://mail.google.com")
+define_webjump("g", "http://www.google.com/search?q=%s")
+define_webjump("youtube", "http://www.youtube.com/results?search_query=%s&search=Search");
+define_webjump("youtube-user", "http://youtube.com/profile_videos?user=%s");
+
+hint_digits="abcdefghijklmnopqrstuvwxyz";
+define_key(text_keymap, "C-h", "cmd_deleteCharBackward");
+define_key(content_buffer_normal_keymap, "C-l", "find-url");
+define_key(content_buffer_normal_keymap, "C-f", "follow-new-window");
+require("gmail");
