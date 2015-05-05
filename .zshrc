@@ -6,8 +6,10 @@
 case $OSTYPE in
     linux*)
         alias ls='ls --color=auto'
-        alias grep='grep --color=auto'
+	alias grep='grep --color=auto'
+	export GCC_COLORS=auto	
         alias e='emacs -fg grey -bg black -fn 7x14'
+	alias time='/usr/bin/time'
         which emacs-gnuclient-start >& /dev/null && alias e=emacs-gnuclient-start
     ;;
     freebsd*)
@@ -113,3 +115,16 @@ bindkey "^Y" yank
 bindkey "^[h" backward-delete-word
 
 source ~/.zshrc_private >& /dev/null
+
+# Store the time for every command run
+# See: http://stackoverflow.com/questions/12580675/zsh-preexec-command-modification
+    
+function time_and_accept {
+    BUFFER="/usr/bin/time -ao /tmp/time-stats $BUFFER"
+    zle accept-line
+}
+zle -N time_and_accept_widget time_and_accept
+# Uncomment to enable
+# bindkey '^J' time_and_accept_widget
+# bindkey '^M' time_and_accept_widget
+
