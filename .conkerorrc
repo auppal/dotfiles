@@ -7,7 +7,7 @@
 define_webjump("ino", "https://inoreader.com")
 define_webjump("cal", "https://www.google.com/calendar")
 define_webjump("gmail", "https://mail.google.com")
-define_webjump("g", "http://www.google.com/search?q=%s")
+define_webjump("g", "https://www.google.com/search?q=%s")
 define_webjump("youtube", "http://www.youtube.com/results?search_query=%s&search=Search");
 define_webjump("youtube-user", "http://youtube.com/profile_videos?user=%s");
 
@@ -18,4 +18,106 @@ define_key(content_buffer_normal_keymap, "C-f", "follow-new-window");
 define_key(content_buffer_normal_keymap, "M-left", "back");
 define_key(content_buffer_normal_keymap, "M-right", "forward");
 define_key(content_buffer_normal_keymap, "C-w", "kill-current-buffer");
+
+session_pref("xpinstall.whitelist.required", false);
+
 require("gmail");
+require("noscript");
+require("google-search-results");
+require("reddit");
+
+require("clicks-in-new-buffer.js");
+// Set to either OPEN_NEW_BUFFER or OPEN_NEW_BUFFER_BACKGROUND
+clicks_in_new_buffer_target = OPEN_NEW_WINDOW;
+// Set to 0 = left mouse, 1 = middle mouse (default), 2 = right mouse
+clicks_in_new_buffer_button = 1;
+
+// Big Hint Numbers
+register_user_stylesheet(
+    "data:text/css," +
+        escape("@namespace url(\"http://www.w3.org/1999/xhtml\");\n" +
+               "span.__conkeror_hint {\n"+
+               "  font-size: 18px !important;\n"+
+               "  line-height: 18px !important;\n"+
+               "}"));
+
+
+function open_external_prog(prog, url, window) {
+    var cmd_str = prog + ' "' + url + '"';
+    if (window != null) {
+        window.minibuffer.message('Issuing ' + cmd_str);
+    }
+    shell_command_blind(cmd_str);
+}
+
+interactive("firefox", "Open with firefox",
+            function (I) { open_external_prog("firefox-bin", I.buffer.display_uri_string, I.window); });
+interactive("chromium", "Open with chromium",
+            function (I) { open_external_prog("chromium-browser", I.buffer.display_uri_string, I.window); });
+
+/* User agent strings: conkeror, firefox compat, firefox. */
+// "Mozilla/5.0 (X11; Linux x86_64; rv:37.0) Gecko/20100101 conkeror/1.0pre1"
+// "Mozilla/5.0 (X11; Linux x86_64; rv:37.0) Gecko/20100101 Firefox/37.0 conkeror/1.0pre1"
+// "Mozilla/5.0 (X11; rv:37.0) Gecko/20150402 Firefox/37.0"
+session_pref("general.useragent.compatMode.firefox", true);
+require("user-agent-policy");
+user_agent_policy.define_policy("default",
+                                "Mozilla/5.0 (X11; Linux x86_64; rv:37.0) Gecko/20100101 conkeror/1.0pre1",
+                                build_url_regexp($domain = /(?:encrypted\.)?google/,
+                                                 $allow_www = true,
+                                                 $path = /search\?|cse\?/,
+                                                 $tlds = ["com", "com.au", "co.uk", "de", "dk", "es",
+                                                          "fr", "it", "no", "se", "uk"]));
+
+content_handlers.set("application/pdf", content_handler_open_url_noprompt);
+
+function content_handler_open_url_noprompt (ctx) {
+    ctx.abort(); // abort download
+    let cwd = with_current_buffer(ctx.buffer, function (I) I.local.cwd);
+    let cmd = "firefox-bin";
+    shell_command_with_argument_blind(cmd, ctx.launcher.source.spec, $cwd = cwd);
+}
+
+/* Enable spell check */
+session_pref("layout.spellcheckDefault", 1);
+
+/* Based on https://github.com/scottjad/restore_killed_buffer_url/blob/master/restore_killed_buffer_url.js */
+
+var killed_buffers = [];
+
+function save_buffer_history(buffer) {
+    if (buffer.display_uri_string) {
+        killed_buffers.push({url: buffer.display_uri_string,
+                             title: buffer.title,
+                             history: buffer.web_navigation.sessionHistory});
+    }
+    return true;
+};
+add_hook("buffer_kill_before_hook", save_buffer_history);
+
+interactive("restore-killed-buffer-url", "Loads url from a previously killed buffer",
+            function restore_killed_buffer_url (I) {
+                if (killed_buffers.length !== 0) {
+                    var killed_buffer = yield I.minibuffer.read(
+                        $prompt = "Restore killed buffer url:",
+                        $completer = new all_word_completer($completions = killed_buffers,
+                                                            $get_string = function (x) x.url,
+                                                            $get_description = function (x) x.title),
+                        $default_completion = killed_buffers[killed_buffers.length - 1],
+                        $auto_complete = "url",
+                        $auto_complete_initial = true,
+                        $auto_complete_delay = 0,
+                        $require_match = true
+                    );
+
+                    load_url_in_new_buffer(killed_buffer.url);
+
+                    var buf = I.window.buffers.current;
+                    buf.web_navigation.sessionHistory = killed_buffer.history;
+                    var original_index = buf.web_navigation.sessionHistory.index;
+                    buf.web_navigation.gotoIndex(original_index);
+
+                } else {
+                    I.window.minibuffer.message("No killed buffer urls");
+                }
+            });
