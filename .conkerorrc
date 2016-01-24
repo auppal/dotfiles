@@ -18,13 +18,15 @@ define_key(content_buffer_normal_keymap, "C-f", "follow-new-window");
 define_key(content_buffer_normal_keymap, "M-left", "back");
 define_key(content_buffer_normal_keymap, "M-right", "forward");
 define_key(content_buffer_normal_keymap, "C-w", "kill-current-buffer");
+define_key(content_buffer_normal_keymap, "f5", "reload");
 
 session_pref("xpinstall.whitelist.required", false);
 
 require("gmail");
-require("noscript");
+// require("noscript");
 require("google-search-results");
 require("reddit");
+require("facebook");
 
 require("clicks-in-new-buffer.js");
 // Set to either OPEN_NEW_BUFFER or OPEN_NEW_BUFFER_BACKGROUND
@@ -53,14 +55,18 @@ function open_external_prog(prog, url, window) {
 interactive("firefox", "Open with firefox",
             function (I) { open_external_prog("firefox-bin", I.buffer.display_uri_string, I.window); });
 interactive("chromium", "Open with chromium",
-            function (I) { open_external_prog("chromium-browser", I.buffer.display_uri_string, I.window); });
+            function (I) { open_external_prog("chromium-browser --new-window", I.buffer.display_uri_string, I.window); });
 
 /* User agent strings: conkeror, firefox compat, firefox. */
 // "Mozilla/5.0 (X11; Linux x86_64; rv:37.0) Gecko/20100101 conkeror/1.0pre1"
 // "Mozilla/5.0 (X11; Linux x86_64; rv:37.0) Gecko/20100101 Firefox/37.0 conkeror/1.0pre1"
 // "Mozilla/5.0 (X11; rv:37.0) Gecko/20150402 Firefox/37.0"
+// "Mozilla/5.0 (X11; Linux x86_64; rv:40.0) Gecko/20100101 Firefox/40.0"
+// "Mozilla/5.0 (X11; Linux x86_64; rv:43.0) Gecko/20100101 Firefox/43.0"
+
 session_pref("general.useragent.compatMode.firefox", true);
 require("user-agent-policy");
+
 user_agent_policy.define_policy("default",
                                 "Mozilla/5.0 (X11; Linux x86_64; rv:37.0) Gecko/20100101 conkeror/1.0pre1",
                                 build_url_regexp($domain = /(?:encrypted\.)?google/,
@@ -68,6 +74,19 @@ user_agent_policy.define_policy("default",
                                                  $path = /search\?|cse\?/,
                                                  $tlds = ["com", "com.au", "co.uk", "de", "dk", "es",
                                                           "fr", "it", "no", "se", "uk"]));
+
+/*
+user_agent_policy.define_policy("youtube",
+                                "Mozilla/5.0 (X11; rv:37.0) Gecko/20150402 Firefox/37.0",
+                                build_url_regexp($domain = /(?:encrypted\.)?youtube/,
+                                                 $allow_www = true,
+                                                 $path = /search\?|cse\?/,
+                                                 $tlds = ["com", "com.au", "co.uk", "de", "dk", "es",
+                                                          "fr", "it", "no", "se", "uk"]));
+*/
+
+set_user_agent("Mozilla/5.0 (X11; rv:37.0) Gecko/20150402 Firefox/37.0")
+
 
 content_handlers.set("application/pdf", content_handler_open_url_noprompt);
 
