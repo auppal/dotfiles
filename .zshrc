@@ -8,9 +8,7 @@ case $OSTYPE in
         alias ls='ls --color=auto'
 	alias grep='grep --color=auto'
 	export GCC_COLORS=auto	
-        alias e='emacs -fg grey -bg black -fn 7x14'
 	alias time='/usr/bin/time'
-        which emacs-gnuclient-start >& /dev/null && alias e=emacs-gnuclient-start
     ;;
     freebsd*)
         export CLICOLOR=
@@ -25,6 +23,9 @@ alias ll='ls -lArt'
 alias l='ls -lArt'
 alias xo=xdg-open
 
+which mg >& /dev/null && alias e=mg
+which emacs >& /dev/null && alias e='emacs -fg grey -bg black -fn 7x14'
+which emacs-gnuclient-start >& /dev/null && alias e=emacs-gnuclient-start
 
 # set the prompt to both change window title and color the prompt
 
