@@ -1,5 +1,5 @@
 # Written by Ahsen Uppal
-# Copyright (C) 2015, Ahsen Uppal
+# Copyright (C) 2017, Ahsen Uppal
 # All rights reserved.
 #
 
@@ -13,7 +13,6 @@ case $OSTYPE in
     freebsd*)
         export CLICOLOR=
         export LSCOLORS="ExFxCxDxBxegedabagacad"
-        alias e='emacs -fg grey -bg black -fn 7x14'
     ;;
 esac
 
@@ -27,6 +26,13 @@ which mg >& /dev/null && alias e=mg
 which emacs >& /dev/null && alias e='emacs -fg grey -bg black -fn 7x14'
 which emacs-gnuclient-start >& /dev/null && alias e=emacs-gnuclient-start
 
+source /etc/os-release
+if [ $PRETTY_NAME != "Gentoo/Linux" ]; then
+    OS_NAME=$PRETTY_NAME' '
+else
+    OS_NAME=
+fi
+
 # set the prompt to both change window title and color the prompt
 
 case $TERM in
@@ -37,7 +43,7 @@ case $TERM in
 	export PS1=$'[%n@%m] \033[1;32m%d\033[0m\n>'
 	;;
     screen*)
-	export PS1=$'\033]0;[%n@%m] %d\007'$'[%n@%m] \033[1;32m%d\033[0m\n>'
+	export PS1=$'\033]0;[%n@%m] %d\007'$'[%n@%m] \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
 
 	# See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
 	preexec () {
@@ -52,7 +58,7 @@ case $TERM in
 	export PS1=$'[%n@%m] \033[1;32m%d\033[0m\n>'
 	;;
     rxvt*)
-        export PS1=$'\033]0;[%n@%m] %d\007'$'[%n@%m] \033[1;32m%d\033[0m\n>'
+        export PS1=$'\033]0;[%n@%m] %d\007'$'[%n@%m] \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
         ;;
     kterm*)
         export PS1=$'\033]0;[%n@%m] %d\007'$'[%n@%m] \033[1;32m%d\033[0m\n>'
@@ -131,14 +137,14 @@ zle -N time_and_accept_widget time_and_accept
 
 # From: http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
 # and http://unix.stackexchange.com/questions/6010/colored-man-pages-not-working-on-gentoo
-# man() {
-#     GROFF_NO_SGR=1 \
-#     LESS_TERMCAP_mb=$'\e'"[1;31m" \
-#     LESS_TERMCAP_md=$'\e'"[1;31m" \
-#     LESS_TERMCAP_me=$'\e'"[0m" \
-#     LESS_TERMCAP_se=$'\e'"[0m" \
-#     LESS_TERMCAP_so=$'\e'"[1;44;33m" \
-#     LESS_TERMCAP_ue=$'\e'"[0m" \
-#     LESS_TERMCAP_us=$'\e'"[1;32m" \
-#     command man "$@"
-# }
+man() {
+    GROFF_NO_SGR=1 \
+    LESS_TERMCAP_mb=$'\e'"[1;31m" \
+    LESS_TERMCAP_md=$'\e'"[1;31m" \
+    LESS_TERMCAP_me=$'\e'"[0m" \
+    LESS_TERMCAP_se=$'\e'"[0m" \
+    LESS_TERMCAP_so=$'\e'"[1;44;33m" \
+    LESS_TERMCAP_ue=$'\e'"[0m" \
+    LESS_TERMCAP_us=$'\e'"[1;32m" \
+    command man "$@"
+}
