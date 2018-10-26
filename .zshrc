@@ -21,10 +21,13 @@ alias lf='ls -FA'
 alias ll='ls -lArt'
 alias l='ls -lArt'
 alias xo=xdg-open
+which eman >& /dev/null && alias man=eman
 
-which mg >& /dev/null && alias e=mg
-which emacs >& /dev/null && alias e='emacs -fg grey -bg black -fn 7x14'
-which emacs-gnuclient-start >& /dev/null && alias e=emacs-gnuclient-start
+# which mg >& /dev/null && alias e=mg
+# which emacs >& /dev/null && alias e='emacs -fg grey -bg black -fn 7x14'
+# which emacs-gnuclient-start >& /dev/null && alias e=emacs-gnuclient-start
+e() { eipe "$@" || (emacsclient -c --alternate-editor="" -q "$@" &!) }
+export EDITOR='emacsclient -c --alternate-editor="" -q '
 
 source /etc/os-release
 if [ $PRETTY_NAME != "Gentoo/Linux" ]; then
@@ -48,6 +51,7 @@ case $TERM in
 	# See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
 	preexec () {
 	    echo -ne "\ek${USER}@${HOST} $PWD ${1%% *}\e\\"
+	    export DISPLAY=`cat ~/.display`
 	}
 	;;
     xterm*)
@@ -68,13 +72,12 @@ case $TERM in
 	;;
 esac
 
-export EDITOR=emacs
 export MANSECT="2:3:1:4:5:6:7:8:9"
 
 stty -ixon
-echo
-which fortune >& /dev/null && fortune -o
-echo
+#echo
+#which fortune >& /dev/null && fortune -o
+#echo
 
 autoload -U compinit
 compinit
@@ -135,16 +138,18 @@ zle -N time_and_accept_widget time_and_accept
 # bindkey '^J' time_and_accept_widget
 # bindkey '^M' time_and_accept_widget
 
+export LESS='-XF'
+
 # From: http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
 # and http://unix.stackexchange.com/questions/6010/colored-man-pages-not-working-on-gentoo
-man() {
-    GROFF_NO_SGR=1 \
-    LESS_TERMCAP_mb=$'\e'"[1;31m" \
-    LESS_TERMCAP_md=$'\e'"[1;31m" \
-    LESS_TERMCAP_me=$'\e'"[0m" \
-    LESS_TERMCAP_se=$'\e'"[0m" \
-    LESS_TERMCAP_so=$'\e'"[1;44;33m" \
-    LESS_TERMCAP_ue=$'\e'"[0m" \
-    LESS_TERMCAP_us=$'\e'"[1;32m" \
-    command man "$@"
-}
+# man() {
+#     GROFF_NO_SGR=1 \
+#     LESS_TERMCAP_mb=$'\e'"[1;31m" \
+#     LESS_TERMCAP_md=$'\e'"[1;31m" \
+#     LESS_TERMCAP_me=$'\e'"[0m" \
+#     LESS_TERMCAP_se=$'\e'"[0m" \
+#     LESS_TERMCAP_so=$'\e'"[1;44;33m" \
+#     LESS_TERMCAP_ue=$'\e'"[0m" \
+#     LESS_TERMCAP_us=$'\e'"[1;32m" \
+#     command man "$@"
+# }
