@@ -21,7 +21,6 @@ alias lf='ls -FA'
 alias ll='ls -lArt'
 alias l='ls -lArt'
 alias xo=xdg-open
-which eman >& /dev/null && alias man=eman
 
 # which mg >& /dev/null && alias e=mg
 # which emacs >& /dev/null && alias e='emacs -fg grey -bg black -fn 7x14'
@@ -40,13 +39,13 @@ fi
 
 case $TERM in
     cons25*)
-	export PS1=$'[%n@%m] \033[1;32m%d\033[0m\n>'
+	export PS1=$'%n@%m \033[1;32m%d\033[0m\n>'
 	;;
     linux*)
-	export PS1=$'[%n@%m] \033[1;32m%d\033[0m\n>'
+	export PS1=$'%n@%m \033[1;32m%d\033[0m\n>'
 	;;
     screen*)
-	export PS1=$'\033]0;[%n@%m] %d\007'$'[%n@%m] \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
+	export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
 
 	# See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
 	preexec () {
@@ -55,20 +54,20 @@ case $TERM in
 	}
 	;;
     xterm*)
-	export PS1=$'\033]0;[%n@%m] %d\007'$'[%n@%m] \033[1;32m%d\033[0m\n>'
+	export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;32m%d\033[0m\n>'
 	;;
     eterm*)
         # emacs won't set window title
-	export PS1=$'[%n@%m] \033[1;32m%d\033[0m\n>'
+	export PS1=$'%n@%m \033[1;32m%d\033[0m\n>'
 	;;
     rxvt*)
-        export PS1=$'\033]0;[%n@%m] %d\007'$'[%n@%m] \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
+        export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
         ;;
     kterm*)
-        export PS1=$'\033]0;[%n@%m] %d\007'$'[%n@%m] \033[1;32m%d\033[0m\n>'
+        export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;32m%d\033[0m\n>'
         ;;
     *)
-	export PS1=$'[%n@%m] %d\n>'
+	export PS1=$'%n@%m %d\n>'
 	;;
 esac
 
@@ -140,16 +139,15 @@ zle -N time_and_accept_widget time_and_accept
 
 export LESS='-XF'
 
+which eman >& /dev/null && alias man=eman
+
 # From: http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
 # and http://unix.stackexchange.com/questions/6010/colored-man-pages-not-working-on-gentoo
-# man() {
-#     GROFF_NO_SGR=1 \
-#     LESS_TERMCAP_mb=$'\e'"[1;31m" \
-#     LESS_TERMCAP_md=$'\e'"[1;31m" \
-#     LESS_TERMCAP_me=$'\e'"[0m" \
-#     LESS_TERMCAP_se=$'\e'"[0m" \
-#     LESS_TERMCAP_so=$'\e'"[1;44;33m" \
-#     LESS_TERMCAP_ue=$'\e'"[0m" \
-#     LESS_TERMCAP_us=$'\e'"[1;32m" \
-#     command man "$@"
-# }
+export GROFF_NO_SGR=1
+export LESS_TERMCAP_mb=$'\e'"[1;31m"
+export LESS_TERMCAP_md=$'\e'"[1;31m"
+export LESS_TERMCAP_me=$'\e'"[0m"
+export LESS_TERMCAP_se=$'\e'"[0m"
+export LESS_TERMCAP_so=$'\e'"[1;44;33m"
+export LESS_TERMCAP_ue=$'\e'"[0m"
+export LESS_TERMCAP_us=$'\e'"[1;32m"
