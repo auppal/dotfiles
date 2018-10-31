@@ -1,2 +1,2 @@
 #!/bin/bash
-ls -d .[^.]*[^~] | grep -v .git | while read i; do ln -vs $PWD/$i $HOME/$i; done
+ls -d .[^.]*[^~] | grep -vx .git | while read i; do ln -vs $PWD/$i $HOME/$i; done
