@@ -1,0 +1,12 @@
+[user]
+	name = Ahsen Uppal
+	email = "auppal@gwu.edu"
+# See: https://groups.google.com/forum/#!topic/binary-transparency/f-BI4o8HZW0
+[transfer]
+        fsckobjects = true
+[fetch]
+        fsckobjects = true
+[receive]
+        fsckObjects = true
+[core]
+	pager = less -R
