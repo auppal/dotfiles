@@ -2,17 +2,27 @@
 ; Copyright (C) 2015, Ahsen Uppal
 ; All rights reserved.
 ;
+;; Add the melpa package repository.
+;; https://github.com/melpa/melpa
+(require 'package)
+(let* ((no-ssl (and (memq system-type '(windows-nt ms-dos))
+                    (not (gnutls-available-p))))
+       (url (concat (if no-ssl "http" "https") "://melpa.org/packages/")))
+  (add-to-list 'package-archives (cons "melpa" url) t))
+(when (< emacs-major-version 24)	
+  ;; For important compatibility libraries like cl-lib
+  (add-to-list 'package-archives '("gnu" . "https://elpa.gnu.org/packages/")))	
+(package-initialize)
 
 (setq homedir (concat "~" (getenv "LOGNAME")))
-(setq load-path (cons (concat homedir "/.emacs-custom") load-path))
-(setq load-path (cons (concat homedir "/.emacs-custom/dtrt-indent") load-path))
+(setq load-path (cons "~/.emacs-custom" load-path))
 
-       (add-hook 'c-mode-hook '(lambda() (load "c-keys")))
-       (add-hook 'c++-mode-hook '(lambda() (load "c-keys")))
+(add-hook 'c-mode-hook '(lambda() (load "c-keys")))
+(add-hook 'c++-mode-hook '(lambda() (load "c-keys")))
 
-       ;; Allow C code to be in different colors depending on whether
-       ;; it is a comment line, language command, etc.
-       (global-font-lock-mode t)
+;; setting global-font-lock-mode may no longer be needed
+;; (global-font-lock-mode t) ;; syntax highlighting
+(show-paren-mode t) ;; paren highlighting
 
 (defun up-slightly () (interactive) (scroll-up 5))
       (defun down-slightly () (interactive) (scroll-down 5))
@@ -37,6 +47,11 @@
 ;; better:
 (define-key key-translation-map [?\C-h] [?\C-?])
 
+;; Commented out because using save-buffers-kill-terminal (C-x C-c) is better.
+;; (defun kill-buffer-and-frame () (interactive) (kill-this-buffer) (delete-frame))
+;; (define-key global-map "\C-x\k" 'kill-buffer-and-frame)
+(defun kill-this-buffer-safe () (interactive) (kill-buffer (current-buffer)))
+(define-key global-map "\C-x\k" 'kill-this-buffer-safe)
 
 (define-key global-map "\C-x\m" 'compile)
 ;;(define-key global-map "\C-x\C-b" 'bs-show)
@@ -46,6 +61,8 @@
 (define-key global-map "\M-h" 'backward-kill-word)
 (define-key global-map "\M-\C-h" 'backward-kill-word)
 (define-key global-map "\C-x\C-f" 'ffap)
+
+
 
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
@@ -59,22 +76,20 @@
 
 
 (if (fboundp 'blink-cursor-mode) (blink-cursor-mode 0))
-(set-cursor-color "orange")
-
-(setq pop-up-frames t)
 (require 'ibuffer)
 ;;(require 'dict)
 (define-key global-map "\C-x\C-b" 'ibuffer)
+(add-hook 'ibuffer-mode-hook (lambda () (ibuffer-auto-mode 1)))
 
-(load "auctex.el" nil t t)
-(load "preview-latex.el" nil t t)
+(require 'tex-site nil t)
+(with-demoted-errors
+    (load "auctex.el" nil t t) (load "preview-latex.el" nil t t))
+
+
 (set-default 'preview-scale-function 1.5)
 
 (put 'downcase-region 'disabled nil)
 (put 'upcase-region 'disabled nil)
-
-(load "50gnuserv-gentoo.el" nil t t)
-(gnuserv-start)
 
 (defun unfill-paragraph (arg)
   "Pull this whole paragraph up onto one line."
@@ -91,21 +106,30 @@
 (require 'dired-aux)
 (require 'dired-x)
 (setq dired-guess-shell-alist-user (list
-'("\\.divx$" "mplayer * >& /dev/null")
-'("\\.avi$" "mplayer * >& /dev/null")
+'("\\.divx$" "mplayer * >& /dev/null &!")
+'("\\.avi$" "mplayer * >& /dev/null &!")
+'("\\.mp4$" "mplayer * >& /dev/null &!")
+'("\\.wmv$" "mplayer * >& /dev/null &!")
 '("\\.pdf$" "pdftotext * /dev/stdout")
 ))
 
 ;; force these to open in a new frame
 (setq special-display-buffer-names
     '("*Shell Command Output*" "*Python Output*" "*Help*" "*grep*"))
+
+;; From: http://lists.gnu.org/archive/html/emacs-devel/2011-07/msg00499.html
+(setq pop-up-frames 'graphic-only
+      display-buffer-reuse-frames t
+      special-display-regexps '(("^\\*.*\\*$" pop-to-buffer-same-frame)))
+
+
 (setq special-display-regexps
     '("\*Man .*\*"))
 
+; To temprarily enable, use C-SPC C-SPC
 (transient-mark-mode 0)
 
-(require 'dtrt-indent)
-(dtrt-indent-mode 1)
+(with-demoted-errors (require 'dtrt-indent) (dtrt-indent-mode 1))
 
 (require 're-builder)
 (setq reb-re-syntax 'string)
@@ -119,3 +143,136 @@
 (setq x-select-enable-primary t)
 (setq mouse-drag-copy-region t)
 
+;; Use new frames instead of splitting windows
+;;(setq pop-up-frames t)
+;;(setq display-buffer-reuse-frames t)
+
+
+;; Not using this python mode anymore
+;; (add-hook 'python-mode-hook
+;;           (lambda ()
+;;             (define-key python-mode-map "\C-c\C-c" 'py-execute-buffer-ipython)))
+
+(setq py-split-windows-on-execute-p nil)
+;; And py-split-windows-on-execute-p renamed to py-split-window-on-execute in python-mode.el-6.2.0
+(setq py-split-window-on-execute nil)
+
+
+;; Toggle window dedication
+;; (defun toggle-window-dedicated ()
+;;   "Toggle whether the current active window is dedicated or not"
+;;   (interactive)
+;;   (message
+;;    (if (let (window (get-buffer-window (current-buffer)))
+;;          (set-window-dedicated-p window 
+;;                                  (not (window-dedicated-p window))))
+;;        "Window '%s' is dedicated"
+;;      "Window '%s' is normal")
+;;    (current-buffer)))
+
+;; ;; Press [pause] key in each window you want to "freeze"
+;; (global-set-key [pause] 'toggle-window-dedicated)
+
+(require 'python)
+
+;; interactively do things
+(require 'ido)
+(ido-mode t)
+
+(setq browse-url-browser-function 'browse-url-generic
+      browse-url-generic-program "firefox")
+
+(require 'browse-url) ; in emacs
+
+; Based on: http://ergoemacs.org/emacs/emacs_lookup_ref.html
+;
+(defun wikipedia ()
+  "Look up the word under cursor in Wikipedia.
+If there is a text selection (a phrase), use that.
+This command switches you to your browser."
+  (interactive)
+  (let (myWord myUrl)
+    (setq myWord
+          (if (use-region-p)
+              (buffer-substring-no-properties (region-beginning) (region-end))
+            (thing-at-point 'word)))
+    (setq myWord (replace-regexp-in-string " " "_" myWord))
+    (setq myUrl (concat "https://en.wikipedia.org/wiki/" myWord))
+    (browse-url myUrl)
+    ;; (eww myUrl) ; emacs's own browser
+    ))
+
+; Disabling transient-mark-mode makes use-region-p always false.
+(defun google ()
+  "Look up the region on Google."
+  (interactive)
+  (let (myWord myUrl)
+    (setq myWord
+          (buffer-substring-no-properties (region-beginning) (region-end)))
+    (setq myUrl (concat "https://www.google.com/search?q=" myWord))
+    (browse-url myUrl)
+    ;; (eww myUrl) ; emacs's own browser
+    ))
+
+(defun scholar ()
+  "Look up the region on Google Scholar."
+  (interactive)
+  (let (myWord myUrl)
+    (setq myWord
+          (buffer-substring-no-properties (region-beginning) (region-end)))
+    (setq myUrl (concat (concat "http://scholar.google.com/scholar?q=" myWord) "&as_sdt=1"))
+    (browse-url myUrl)
+    ;; (eww myUrl) ; emacs's own browser
+    ))
+
+;; (with-demoted-errors (require 'ein-dev))
+(with-demoted-errors (require 'ein) (require 'ein-loaddefs) (require 'ein-notebook) (require 'ein-subpackages))
+
+
+;; Disable version control handlers (for speed)
+;; http://shallowsky.com/blog/linux/editors/no-emacs-version-control.html
+;; (setq vc-handled-backends nil)
+
+;; Try to use mobileorg
+;; http://svn.red-bean.com/repos/main/3bits/mobile_org_3bits.txt
+;; http://superuser.com/questions/645079/mobileorg-not-finding-emacs-org-file-with-ssh-server
+(setq org-directory "~/org")
+(setq org-mobile-directory "/mnt/hub/org")
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(org-agenda-files (quote ("~/org/tasks.org")))
+ '(package-selected-packages (quote (px dtrt-indent ein))))
+(setq org-mobile-inbox-for-pull (concat org-directory "/index.org"))
+
+;; org-mobile-push upon save
+;; http://stackoverflow.com/questions/8432108/how-to-automatically-do-org-mobile-push-org-mobile-pull-in-emacs
+(add-hook 
+  'after-save-hook 
+  (lambda () 
+    (if (string= buffer-file-name "/home/ahsen/org/tasks.org")
+        (org-mobile-push))))
+
+
+(set-fringe-mode 0)
+;;(set-face-attribute 'fringe nil :background nil)
+
+;; Specify font here for use with gnuclient and emacsclient.
+;; (add-to-list 'default-frame-alist '(font . "6x13"))
+(add-to-list 'default-frame-alist '(font . "9x15"))
+(add-to-list 'default-frame-alist '(cursor-color . "orange"))
+(add-to-list 'default-frame-alist '(foreground-color . "grey"))
+(add-to-list 'default-frame-alist '(background-color . "black"))
+
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
+
+
+;; Place all backups in one place. flat, no tree structure
+(setq backup-directory-alist '(("" . "~/.emacs.d/emacs-backup")))
