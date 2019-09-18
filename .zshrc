@@ -27,17 +27,26 @@ if [ $TERM = "rxvt-unicode-256color" ]; then
     alias ssh='TERM=xterm-color ssh'
 fi
 
-# which mg >& /dev/null && alias e=mg
-# which emacs >& /dev/null && alias e='emacs -fg grey -bg black -fn 7x14'
-# which emacs-gnuclient-start >& /dev/null && alias e=emacs-gnuclient-start
-e() { eipe "$@" >& /dev/null || (if [ $DISPLAY ]; then (emacsclient -c --alternate-editor="" -q "$@" -n) else (emacsclient -c --alternate-editor="" -q "$@") fi) }
-export EDITOR='emacsclient -c --alternate-editor="" -q '
-
-source /etc/os-release
-if [ $PRETTY_NAME != "Gentoo/Linux" ]; then
-    OS_NAME=$PRETTY_NAME' '
+if which eipe >& /dev/null; then
+    e() { eipe "$@" >& /dev/null || (if [ $DISPLAY ]; then (emacsclient -c --alternate-editor="" -q "$@" -n) else (emacsclient -c --alternate-editor="" -q "$@") fi) }
+    export EDITOR='emacsclient -c --alternate-editor="" -q '
+elif which emacs >& /dev/null; then
+    export EDITOR='emacsclient -c --alternate-editor="" -q '
+    alias e=$EDITOR
 else
-    OS_NAME=
+    export EDITOR=mg
+    alias e=$EDITOR
+fi
+
+if [ -f /etc/os-release ]; then
+    source /etc/os-release
+    if [ $PRETTY_NAME != "Gentoo/Linux" ]; then
+	OS_NAME=$PRETTY_NAME' '
+    else
+	OS_NAME=
+    fi
+else
+    OS_NAME=$(uname -o)' '
 fi
 
 # set the prompt to both change window title and color the prompt
