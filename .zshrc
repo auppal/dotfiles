@@ -70,9 +70,6 @@ case $TERM in
     rxvt*)
         export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
         ;;
-    kterm*)
-        export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;32m%d\033[0m\n>'
-        ;;
     *)
 	export PS1=$'%n@%m %d\n>'
 	;;
