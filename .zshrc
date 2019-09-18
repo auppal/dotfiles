@@ -22,10 +22,15 @@ alias ll='ls -lArt'
 alias l='ls -lArt'
 alias xo=xdg-open
 
+
+if [ $TERM = "rxvt-unicode-256color" ]; then
+    alias ssh='TERM=xterm-color ssh'
+fi
+
 # which mg >& /dev/null && alias e=mg
 # which emacs >& /dev/null && alias e='emacs -fg grey -bg black -fn 7x14'
 # which emacs-gnuclient-start >& /dev/null && alias e=emacs-gnuclient-start
-e() { eipe "$@" || (emacsclient -c --alternate-editor="" -q "$@" &!) }
+e() { eipe "$@" >& /dev/null || (if [ $DISPLAY ]; then (emacsclient -c --alternate-editor="" -q "$@" -n) else (emacsclient -c --alternate-editor="" -q "$@") fi) }
 export EDITOR='emacsclient -c --alternate-editor="" -q '
 
 source /etc/os-release
@@ -50,11 +55,13 @@ case $TERM in
 	# See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
 	preexec () {
 	    echo -ne "\ek${USER}@${HOST} $PWD ${1%% *}\e\\"
-	    export DISPLAY=`cat ~/.display`
+	    if [ $DISPLAY ] && [ $DISPLAY != ":0.0" ]; then
+		export DISPLAY=`cat ~/.display`
+	    fi
 	}
 	;;
     xterm*)
-	export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;32m%d\033[0m\n>'
+        export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
 	;;
     eterm*)
         # emacs won't set window title
@@ -137,7 +144,7 @@ zle -N time_and_accept_widget time_and_accept
 # bindkey '^J' time_and_accept_widget
 # bindkey '^M' time_and_accept_widget
 
-export LESS='-XF'
+export LESS='-XFR'
 
 which eman >& /dev/null && alias man=eman
 
@@ -151,3 +158,4 @@ export LESS_TERMCAP_se=$'\e'"[0m"
 export LESS_TERMCAP_so=$'\e'"[1;44;33m"
 export LESS_TERMCAP_ue=$'\e'"[0m"
 export LESS_TERMCAP_us=$'\e'"[1;32m"
+
