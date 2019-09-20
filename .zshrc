@@ -84,13 +84,7 @@ case $TERM in
 	;;
 esac
 
-export MANSECT="2:3:1:4:5:6:7:8:9"
-
 stty -ixon
-#echo
-#which fortune >& /dev/null && fortune -o
-#echo
-
 autoload -U compinit
 compinit
 
@@ -152,7 +146,7 @@ zle -N time_and_accept_widget time_and_accept
 
 export LESS='-XFR'
 
-which eman >& /dev/null && alias man=eman
+which eman >& /dev/null && alias man=eman && compdef _man eman
 
 # From: http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
 # and http://unix.stackexchange.com/questions/6010/colored-man-pages-not-working-on-gentoo
