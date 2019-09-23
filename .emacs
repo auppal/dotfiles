@@ -117,14 +117,26 @@
 (setq special-display-buffer-names
     '("*Shell Command Output*" "*Python Output*" "*Help*" "*grep*"))
 
+;; Use new frames instead of splitting windows
+;; (setq pop-up-frames t)
+;; (setq display-buffer-reuse-frames t)
+
 ;; From: http://lists.gnu.org/archive/html/emacs-devel/2011-07/msg00499.html
 (setq pop-up-frames 'graphic-only
       display-buffer-reuse-frames t
       special-display-regexps '(("^\\*.*\\*$" pop-to-buffer-same-frame)))
 
-
 (setq special-display-regexps
     '("\*Man .*\*"))
+
+;; From: http://home.thep.lu.se/~karlf/emacs.html#sec-6-3
+;; Remove/kill completion buffer when done
+(add-hook 'minibuffer-exit-hook
+          '(lambda ()
+             (let ((buffer "*Completions*"))
+               (and (get-buffer buffer)
+                    (kill-buffer buffer)))
+))
 
 ; To temprarily enable, use C-SPC C-SPC
 (transient-mark-mode 0)
@@ -142,10 +154,6 @@
 (setq x-select-enable-clipboard nil)
 (setq x-select-enable-primary t)
 (setq mouse-drag-copy-region t)
-
-;; Use new frames instead of splitting windows
-;;(setq pop-up-frames t)
-;;(setq display-buffer-reuse-frames t)
 
 
 ;; Not using this python mode anymore
@@ -244,7 +252,7 @@ This command switches you to your browser."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files (quote ("~/org/tasks.org")))
- '(package-selected-packages (quote (px dtrt-indent ein))))
+ '(package-selected-packages (quote (flycheck px dtrt-indent ein))))
 (setq org-mobile-inbox-for-pull (concat org-directory "/index.org"))
 
 ;; org-mobile-push upon save
