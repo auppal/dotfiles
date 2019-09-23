@@ -11,6 +11,40 @@ xterm*backarrowKey: false
 ! xterm fast scrolling is useful but very ugly
 ! xterm*fastScroll: true
 
+XTerm*bellIsUrgent: true
+URxvt*urgentOnBell: true
+
+URxvt.colorIT:      #87af5f
+URxvt.colorBD:      #d7d7d7
+URxvt.colorUL:      #87afd7
+
+URxvt.iso14755: true
+URxvt.boldFont:
+
+! Solarized colors
+! https://gist.github.com/yevgenko/1167205
+URxvt*background: #002b36
+URxvt*foreground: #657b83
+
+
 ! Disable perl extensions in urxvt
-URxvt.perl-ext:
-URxvt.perl-ext-common:
+! URxvt.perl-ext:
+! URxvt.perl-ext-common:
+
+! urxvt-perls
+URxvt.perl-ext-common: ...,keyboard-select
+URxvt.keysym.M-Escape: perl:keyboard-select:activate
+! URxvt.keysym.C-s: perl:keyboard-select:activate
+URxvt.keysym.M-r: perl:keyboard-select:search
+Urxvt.saveLines: 5000
+
+! See:
+! https://bugs.launchpad.net/ubuntu/+source/x11-apps/+bug/788596
+
+XClock*background: #2C3133
+XClock*majorColor: grey60
+XClock*minorColor: grey40
+XClock*hourColor: grey80
+XClock*minuteColor: grey80
+XClock*width: 400
+XClock*height: 400
