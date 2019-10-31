@@ -128,6 +128,7 @@
 
 (setq special-display-regexps
     '("\*Man .*\*"))
+(setq-default Man-notify-method 'pushy)
 
 ;; From: http://home.thep.lu.se/~karlf/emacs.html#sec-6-3
 ;; Remove/kill completion buffer when done
