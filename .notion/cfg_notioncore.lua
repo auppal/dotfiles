@@ -19,6 +19,53 @@
 -- of the bindings. Similarly ALTMETA may be redefined to add a 
 -- modifier to some of the F-key bindings.
 
+function jump_clientwin_or_open(mplex, text, cmd)
+    -- The [1] is for the first entry in the array returned by complete_clientwin
+    local cw = mod_query.complete_clientwin(text)[1]
+    if  cw ~= nil then
+        mod_query.gotoclient_handler(mplex, cw)
+    else
+        ioncore.exec_on(mplex, cmd)
+    end
+end
+
+
+function completor_url(cp, str)
+    mod_query.popen_completions(cp, "/home/ahsen/code/web_keyword.py "..string.shell_safe(str))
+end
+
+function query_fast(mplex, prog, prompt)
+    mod_query.query_execwith(mplex, TR(prompt),
+                             nil, -- dflt
+                             prog or ":man", 
+			     completor_url, -- completor
+                             nil, -- context
+                             false --[[ enable quoting ]])
+end
+
+
+function jump_frame(xid)
+    -- iterate until internal fn returns false
+    cwin = nil
+    ioncore.clientwin_i(
+        function(w)
+            if w:xid() == xid then
+                cwin = w
+                return false
+            else
+                return true
+            end
+        end)
+
+    if cwin ~= nil then
+        print("Found")
+        print(cwin)
+        cwin:goto_focus()
+    end
+
+end
+
+
 defbindings("WScreen", {
     submap("Control+O", {
         bdoc("Go to previous active object."),
@@ -31,7 +78,8 @@ defbindings("WScreen", {
         kpress("E", "ioncore.create_ws(_)"),
 
         bdoc("Go to next/previous screen on multihead setup."),
-        kpress("J", "WScreen.switch_next(_)"),
+        --kpress("J", "WScreen.switch_next(_)"),
+	kpress("J", "ioncore.goto_next_screen()"),
     }),
 
     kpress("Control+Mod1+semicolon", "WScreen.switch_prev(_)"),
@@ -124,14 +172,19 @@ defbindings("WClientWin", {
     submap("Control+O", {
        bdoc("Nudge the client window. This might help with some "..
          "programs' resizing problems."),
-       kpress_wait("L", "WClientWin.nudge(_)"),
+       kpress_wait("Shift+L", "WClientWin.nudge(_)"),
 
        bdoc("Kill client owning the client window."),
        kpress("Shift+W", "WClientWin.kill(_)"),
        
        bdoc("Send next key press to the client window. "..
             "Some programs may not allow this by default."),
-       kpress("Q", "WClientWin.quote_next(_)"),
+       --kpress("Q", "WClientWin.quote_next(_)"),
+       --kpress("Q", "ioncore.exec_on(_, string.format('0x%x', _:xid()))"),
+       -- "Execute" the name of the current window.
+       kpress("Q", "ioncore.exec_on(_, string.format('0x%s', _:get_ident().class))"),
+       --kpress("Q", "x=WClientWin.xwin(_)"),
+       --kpress("Q", "WClientWin.xwin(_)"),
     }),
 })
 
@@ -161,8 +214,12 @@ defbindings("WMPlex", {
 xte_mouse_zero="xte 'mousemove 9999 9999'"
 xte_mouse_up="xte 'mouseclick 4'"
 xte_mouse_down="xte 'mouseclick 5'"
+xte_xf86back="xte 'keyup Alt_L' 'key XF86Back'"
+
 --xte_paste="echo \"str `xclip -o`\" | xte"
-xte_paste="xclip -o | pykey"
+--xte_paste="xclip -o | pykey"
+--xte_paste="xte 'mouseclick 2'"
+xte_paste="paste.sh"
 
 -- Frames for transient windows ignore this bindmap
 defbindings("WMPlex.toplevel", {
@@ -171,15 +228,20 @@ defbindings("WMPlex.toplevel", {
         kpress("T", "WRegion.set_tagged(_sub, 'toggle')", "_sub:non-nil"),
 
         bdoc("Run a terminal emulator."),
-        kpress("K", "ioncore.exec_on(_, 'exec urxvtc -sr -fn fixed -fg grey -bg black +sb')"),
-        kpress("Shift+U", "ioncore.exec_on(_,'exec chromium-browser')"),
-        kpress("U", "ioncore.exec_on(_,'exec firefox-bin -newwindow')"),
-        kpress("G", "ioncore.exec_on(_,'exec emacs-gnuclient-start')"),
-        kpress("Y", "ioncore.exec_on(_, xte_mouse_zero)"),
-        kpress("Shift+Y", "ioncore.exec_on(_, xte_paste)"),
---        kpress("bracketright", "ioncore.exec_on(_, xte_paste)"),
+        kpress("Shift+K", "ioncore.exec_on(_, 'exec urxvtc -sr -fn fixed -fg grey -bg black +sb')"),
+	kpress("K", "ioncore.exec_on(_, 'kon-big')"),
+        kpress("Shift+U", "ioncore.exec_on(_,'exec chromium')"),
+        kpress("U", "ioncore.exec_on(_,'exec firefox -newwindow')"),
+        kpress("Mod1+U", "ioncore.exec_on(_,'exec firefox -newwindow --private-window')"),
+        -- kpress("slash", "query_fast(_, 'g', 'Google:')"),
+        kpress("slash", "query_fast(_, '/home/ahsen/code/web_keyword.py execute', 'Magic:')"), 
+        kpress("L", "query_fast(_, '/home/ahsen/code/web_keyword.py execute', 'Magic:')"), 
+        --        kpress("G", "ioncore.exec_on(_,'exec emacsclient -c --alternate-editor=\"\" -q')"),
+        kpress("G", "ioncore.exec_on(_,'exec emacsclient -q -c -e \"(ibuffer)\"')"),
 
---        kpress("X", "ioncore.exec_on(_,'xset dpms force off && xset dpms force off && exec slock')"),
+        kpress("Shift+Y", "ioncore.exec_on(_, xte_mouse_zero)"),
+        kpress("Y", "ioncore.exec_on(_, xte_paste)"),
+
         kpress("X", "ioncore.exec_on(_,'xscreensaver-lock')"),
         kpress("Shift+X", "ioncore.exec_on(_,'xscreensaver-toggle')"),
         kpress("B", "ioncore.exec_on(_, 'xset dpms force off ; xscreensaver-lock')"),
@@ -188,13 +250,28 @@ defbindings("WMPlex.toplevel", {
         bdoc("Query for command line to execute."),
         kpress("C", "mod_query.query_exec(_)"),
         kpress("Shift+C", "ioncore.exec_on(_,'conkeror')"),
+
+        kpress("Mod1+F", "jump_clientwin_or_open(_, 'Facebook', 'firefox https://www.facebook.com')"),
+        kpress("Mod1+I", "jump_clientwin_or_open(_, 'Inbox', 'firefox https://mail.google.com')"),
+        kpress("Mod1+M", "jump_clientwin_or_open(_, 'Messages', 'firefox https://m.facebook.com/messages')"),
+        kpress("Mod1+P", "jump_clientwin_or_open(_, 'ipython', 'kon-big -e ipython')"),
     }),
 
-    kpress("Control+Mod1+bracketright", "ioncore.exec_on(_,'mixer.py +3')"),
-    kpress("Control+Mod1+bracketleft", "ioncore.exec_on(_,'mixer.py -3')"),
+    kpress("Control+Mod1+bracketright", "ioncore.exec_on(_,'mixer.sh +3')"),
+    kpress("Control+Mod1+bracketleft", "ioncore.exec_on(_,'mixer.sh -3')"),
+
+
+    kpress("XF86MonBrightnessDown", "ioncore.exec_on(_, 'brightness.sh down')"),
+    kpress("XF86MonBrightnessUp", "ioncore.exec_on(_, 'brightness.sh up')"),    
+
+    kpress("Mod1+bracketright", "ioncore.exec_on(_,'brightness.sh up')"),
+    kpress("Mod1+bracketleft", "ioncore.exec_on(_,'brightness.sh down')"),
+
     kpress("XF86Display", "ioncore.exec_on(_, 'toggle-xrandr.py')"),
+
     kpress("Control+Mod1+N", "ioncore.exec_on(_, xte_mouse_down)"),
     kpress("Control+Mod1+P", "ioncore.exec_on(_, xte_mouse_up)"),
+    kpress("Mod1+Left", "ioncore.exec_on(_, xte_xf86back)"),
     kpress("Print", "ioncore.exec_on(_,'scrot')"),
 
     bdoc("Toggle tag of current object."),
@@ -202,15 +279,9 @@ defbindings("WMPlex.toplevel", {
 
     bdoc("Lock screen"),
     kpress(META.."L", "notioncore.exec_on(_, notioncore.lookup_script('notion-lock'))"),
-    
-    --bdoc("Query for manual page to be displayed."),
-    --kpress(ALTMETA.."F1", "mod_query.query_man(_, ':man')"),
 
-    bdoc("Show the Notion manual page."),
-    kpress(META.."F1", "ioncore.exec_on(_, ':man notion')"),
-
-    --bdoc("Run a terminal emulator."),
-    --kpress(ALTMETA.."F2", "mod_query.exec_on_merr(_, XTERM or 'xterm')"),
+    kpress("Mod1+F4", "query_fast(_, 'g', 'Google:')"),
+    kpress("Control+backslash", "query_fast(_, 'g', 'Google:')"),
     
     bdoc("Query for command line to execute."),
     kpress(ALTMETA.."F3", "mod_query.query_exec(_)"),
@@ -219,24 +290,13 @@ defbindings("WMPlex.toplevel", {
     -- As a fail-safe, force Mod1 even if META is defined differently.
     kpress("Mod1+F3", "mod_query.query_lua(_)"),
 
-    --bdoc("Query for host to connect to with SSH."),
-    --kpress(ALTMETA.."F4", "mod_query.query_ssh(_, ':ssh')"),
-
-    --bdoc("Query for file to edit."),
-    --kpress(ALTMETA.."F5", 
-    --       "mod_query.query_editfile(_, 'run-mailcap --action=edit')"),
-
-    --bdoc("Query for file to view."),
-    --kpress(ALTMETA.."F6", 
-      --     "mod_query.query_runfile(_, 'run-mailcap --action=view')"),
-
     bdoc("Query for workspace to go to or create a new one."),
     kpress(ALTMETA.."F9", "mod_query.query_workspace(_)"),
     
     bdoc("Query for a client window to go to."),
     --kpress(META.."G", "mod_query.query_gotoclient(_)"),
     kpress("Control+Mod1+G", "mod_query.query_gotoclient(_)"),
-    
+
     bdoc("Display context menu."),
     --kpress(META.."M", "mod_menu.menu(_, _sub, 'ctxmenu')"),
     kpress(META.."M", "mod_query.query_menu(_, _sub, 'ctxmenu', 'Context menu:')"),
@@ -491,3 +551,4 @@ defctxmenu("WGroupWS", "Workspace", {
 defctxmenu("WClientWin", "Client window", {
     menuentry("Kill",           "WClientWin.kill(_)"),
 })
+

@@ -19,6 +19,7 @@ defbindings("WTiling", {
 
         bdoc("Destroy current frame."),
         kpress("D", "WTiling.unsplit_at(_, _sub)"),
+	kpress("Shift+D", "mod_tiling.untile(_)"),
     }),
 
     bdoc("Split current frame vertically."),
