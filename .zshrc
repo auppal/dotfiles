@@ -28,8 +28,10 @@ if [ $TERM = "rxvt-unicode-256color" ]; then
 fi
 
 if which eipe >& /dev/null; then
-    e() { eipe "$@" >& /dev/null || (if [ $DISPLAY ]; then (emacsclient -c --alternate-editor="" -q "$@" -n) else (emacsclient -c --alternate-editor="" -q "$@") fi) }
-    export EDITOR='emacsclient -c --alternate-editor="" -q '
+#    e() { eipe "$@" >& /dev/null || (if [ $DISPLAY ]; then (emacsclient -c --alternate-editor="" -q "$@" -n) else (emacsclient -c --alternate-editor="" -q "$@") fi) }
+    # Disable xterm cell motion mouse tracking after exiting emacsclient.
+    e() { eipe "$@" >& /dev/null || (emacsclient --tty -c --alternate-editor="" -q "$@"; printf '\e[?1002l') }
+    export EDITOR='emacsclient --tty -c --alternate-editor="" -q '
 elif which emacs >& /dev/null; then
     export EDITOR='emacsclient -c --alternate-editor="" -q '
     alias e=$EDITOR
@@ -118,9 +120,11 @@ setopt hist_ignore_space # No saving for cmds beginning with a space
 # correction
 # setopt correctall
 
+kill-line() { zle .kill-line ; printf "\e]52;c;$(echo -n $CUTBUFFER | base64)\a"}
+zle -N kill-line
+
 if which xclip >& /dev/null && [ $DISPLAY ]; then
-    kill-line() { zle .kill-line ; echo -n $CUTBUFFER | xclip -i }
-    zle -N kill-line
+    #kill-line() { zle .kill-line ; echo -n $CUTBUFFER | xclip -i }
     yank() { LBUFFER=$LBUFFER$(xclip -o) }
     zle -N yank
 fi
@@ -159,3 +163,4 @@ export LESS_TERMCAP_so=$'\e'"[1;44;33m"
 export LESS_TERMCAP_ue=$'\e'"[0m"
 export LESS_TERMCAP_us=$'\e'"[1;32m"
 
+which dircolors >& /dev/null && eval $(dircolors)
