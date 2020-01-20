@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+
+# Try to copy text into the clipboard in various ways.
+
+import os, sys, subprocess, base64
+
+def copy_via_xclip(s):
+    p = subprocess.Popen(['xclip','-selection','clipboard'], stdin=subprocess.PIPE)
+    p.stdin.write(s.encode())
+    p.stdin.close()    
+
+def copy_via_osc52(s, enc):
+    b = base64.b64encode(s.encode(enc))
+    d = b.decode(enc)
+    sys.stdout.write('\033]52;c;' + d + '\007')
+    sys.stdout.flush()
+
+def copy_via_screen_osc52(s, enc):
+    b = base64.b64encode(s.encode(enc))
+    d = b.decode(enc)
+    sys.stdout.write('\033P\033]52;c;' + d + '\007\033\\')
+    sys.stdout.flush()
+
+def copy_via_tmux_osc52(s, enc):
+    b = base64.b64encode(s.encode(enc))
+    d = b.decode(enc)
+    sys.stdout.write('\033Ptmux;\033\033]52;c;' + d + '\007\033\\')
+    sys.stdout.flush()
+
+if __name__ == "__main__":
+    term = os.getenv("TERM")
+    sty = os.getenv("STY")
+    ssh_tty = os.getenv("SSH_TTY")
+    tmux = os.getenv("TMUX")
+    disp = os.getenv("DISPLAY")
+
+    enc = sys.stdin.encoding
+    if not enc:
+        enc = "UTF-8"
+
+    txt = sys.stdin.read()
+
+    if disp:
+        try:
+            copy_via_xclip(txt, enc)
+            sys.exit(0)
+        except:
+            pass
+
+    if term.startswith("screen"):
+        if tmux:
+            copy_via_tmux_osc52(txt, enc)
+        else:
+            copy_via_screen_osc52(txt, enc)
+
+        sys.exit(0)
+
+    if term == "rxvt-unicode-256color":
+        copy_via_osc52(txt, enc)
