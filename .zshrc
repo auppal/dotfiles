@@ -23,9 +23,9 @@ alias l='ls -lArt'
 alias xo=xdg-open
 
 
-if [ $TERM = "rxvt-unicode-256color" ]; then
-    alias ssh='TERM=xterm-color ssh'
-fi
+# if [ $TERM = "rxvt-unicode-256color" ]; then
+#     alias ssh='TERM=xterm-color ssh'
+# fi
 
 if which eipe >& /dev/null; then
 #    e() { eipe "$@" >& /dev/null || (if [ $DISPLAY ]; then (emacsclient -c --alternate-editor="" -q "$@" -n) else (emacsclient -c --alternate-editor="" -q "$@") fi) }
@@ -120,7 +120,8 @@ setopt hist_ignore_space # No saving for cmds beginning with a space
 # correction
 # setopt correctall
 
-kill-line() { zle .kill-line ; printf "\e]52;c;$(echo -n $CUTBUFFER | base64)\a"}
+# kill-line() { zle .kill-line ; printf "\e]52;c;$(echo -n $CUTBUFFER | base64)\a"}
+kill-line() { zle .kill-line ; echo -n $CUTBUFFER | copy-to-clipboard }
 zle -N kill-line
 
 if which xclip >& /dev/null && [ $DISPLAY ]; then
