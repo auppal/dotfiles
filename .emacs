@@ -253,7 +253,9 @@ This command switches you to your browser."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(org-agenda-files (quote ("~/org/tasks.org")))
- '(package-selected-packages (quote (flycheck px dtrt-indent ein))))
+ '(package-selected-packages
+   (quote
+    (xclip doom-modeline vterm flycheck px dtrt-indent ein))))
 (setq org-mobile-inbox-for-pull (concat org-directory "/index.org"))
 
 ;; org-mobile-push upon save
@@ -269,19 +271,48 @@ This command switches you to your browser."
 ;;(set-face-attribute 'fringe nil :background nil)
 
 ;; Specify font here for use with gnuclient and emacsclient.
-;; (add-to-list 'default-frame-alist '(font . "6x13"))
+
 (add-to-list 'default-frame-alist '(font . "9x15"))
 (add-to-list 'default-frame-alist '(cursor-color . "orange"))
 (add-to-list 'default-frame-alist '(foreground-color . "grey"))
 (add-to-list 'default-frame-alist '(background-color . "black"))
 
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
+;; https://stackoverflow.com/questions/19054228/emacs-disable-theme-background-color-in-terminal
+(defun set-background-for-terminal (&optional frame)
+  (or frame (setq frame (selected-frame)))
+  "Unsets the background color in terminal mode."
+  (unless (display-graphic-p frame)
+    (set-face-background 'default "unspecified-bg" frame))
+  (xterm-mouse-mode 1)
+  )
+(add-hook 'after-make-frame-functions 'set-background-for-terminal)
+(add-hook 'window-setup-hook 'set-background-for-terminal)
 
 
 ;; Place all backups in one place. flat, no tree structure
 (setq backup-directory-alist '(("" . "~/.emacs.d/emacs-backup")))
+
+(define-key key-translation-map [?\H-x] [?\C-x])
+(define-key key-translation-map [?\H-s] [?\C-s])
+(define-key key-translation-map [?\H-c] [?\C-c])
+
+(set-face-foreground 'mode-line "#aaaa99")
+(set-face-background 'mode-line "#333333")
+(set-face-foreground 'line-number "#333333")
+
+(set-face-attribute 'mode-line-buffer-id nil :foreground "white" :bold t)
+
+
+;;(set-frame-parameter (selected-frame) 'alpha '(<active> . <inactive>))
+;;(set-frame-parameter (selected-frame) 'alpha <both>)
+(set-frame-parameter (selected-frame) 'alpha '(85 . 85))
+(add-to-list 'default-frame-alist '(alpha . (85 . 85)))
+
+;; Enable using xclip even in the terminal.
+(with-demoted-errors (xclip-mode 1))
+(with-demoted-errors (xterm-mouse-mode 1))
+
+(defun unkillable-scratch-buffer ()
+  (if (equal (buffer-name (current-buffer)) "*scratch*")
+      (progn (delete-region (point-min) (point-max)) nil) t))
+(add-hook 'kill-buffer-query-functions 'unkillable-scratch-buffer)
