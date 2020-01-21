@@ -1,2 +1,4 @@
 #!/bin/bash
 ls -d .[^.]*[^~] | grep -vx .git | while read i; do ln -vs $PWD/$i $HOME/$i; done
+mkdir ~/bin
+cp -a copy-to-clipboard ~/bin
