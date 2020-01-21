@@ -55,5 +55,4 @@ if __name__ == "__main__":
 
         sys.exit(0)
 
-    if term == "rxvt-unicode-256color":
-        copy_via_osc52(txt, enc)
+    copy_via_osc52(txt, enc)
