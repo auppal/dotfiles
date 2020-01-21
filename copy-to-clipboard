@@ -4,9 +4,9 @@
 
 import os, sys, subprocess, base64
 
-def copy_via_xclip(s):
+def copy_via_xclip(s, enc):
     p = subprocess.Popen(['xclip','-selection','clipboard'], stdin=subprocess.PIPE)
-    p.stdin.write(s.encode())
+    p.stdin.write(s.encode(enc))
     p.stdin.close()    
 
 def copy_via_osc52(s, enc):
