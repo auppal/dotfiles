@@ -34,3 +34,4 @@ export CLICOLOR=
 export LSCOLORS="ExFxCxDxBxegedabagacad"
 
 export EDITOR=emacs
+export HISTFILE=$HOME/.bash_history
