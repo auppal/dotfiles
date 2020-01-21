@@ -120,20 +120,26 @@ setopt hist_ignore_space # No saving for cmds beginning with a space
 # correction
 # setopt correctall
 
-# kill-line() { zle .kill-line ; printf "\e]52;c;$(echo -n $CUTBUFFER | base64)\a"}
 kill-line() { zle .kill-line ; echo -n $CUTBUFFER | copy-to-clipboard }
 zle -N kill-line
 
+copy-region-as-kill() { zle .copy-region-as-kill ; echo -n $CUTBUFFER | copy-to-clipboard }
+zle -N copy-region-as-kill
+
+kill-region() { zle .kill-region; echo -n $CUTBUFFER | copy-to-clipboard }
+zle -N kill-region
+
 if which xclip >& /dev/null && [ $DISPLAY ]; then
-    #kill-line() { zle .kill-line ; echo -n $CUTBUFFER | xclip -i }
     yank() { LBUFFER=$LBUFFER$(xclip -o) }
     zle -N yank
 fi
 
 bindkey -e
 bindkey "^K" kill-line
+bindkey "^W" kill-region
 bindkey "^Y" yank
 bindkey "^[h" backward-delete-word
+zle_highlight+=(paste:none;region:bg=blue)
 
 source ~/.zshrc_private >& /dev/null
 
