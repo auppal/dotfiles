@@ -27,23 +27,20 @@ def copy_via_tmux_osc52(s, enc):
     sys.stdout.write('\033Ptmux;\033\033]52;c;' + d + '\007\033\\')
     sys.stdout.flush()
 
-if __name__ == "__main__":
+def copy_to_clipboard(txt, enc = None):
+    if not enc:
+        enc = "UTF-8"
+
     term = os.getenv("TERM")
     sty = os.getenv("STY")
     ssh_tty = os.getenv("SSH_TTY")
     tmux = os.getenv("TMUX")
     disp = os.getenv("DISPLAY")
 
-    enc = sys.stdin.encoding
-    if not enc:
-        enc = "UTF-8"
-
-    txt = sys.stdin.read()
-
     if disp:
         try:
             copy_via_xclip(txt, enc)
-            sys.exit(0)
+            return
         except:
             pass
 
@@ -53,6 +50,11 @@ if __name__ == "__main__":
         else:
             copy_via_screen_osc52(txt, enc)
 
-        sys.exit(0)
+        return
 
     copy_via_osc52(txt, enc)
+
+if __name__ == "__main__":
+    enc = sys.stdin.encoding
+    txt = sys.stdin.read()
+    copy_to_clipboard(txt, enc)
