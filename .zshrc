@@ -120,13 +120,13 @@ setopt hist_ignore_space # No saving for cmds beginning with a space
 # correction
 # setopt correctall
 
-kill-line() { zle .kill-line ; printf "\e]52;c;$(echo -n $CUTBUFFER | base64)\a" }
+kill-line() { zle .kill-line ; copy_to_clipboard; }
 zle -N kill-line
 
-copy-region-as-kill() { zle .copy-region-as-kill ; printf "\e]52;c;$(echo -n $CUTBUFFER | base64)\a" }
+copy-region-as-kill() { zle .copy-region-as-kill ; copy_to_clipboard}
 zle -N copy-region-as-kill
 
-kill-region() { zle .kill-region; printf "\e]52;c;$(echo -n $CUTBUFFER | base64)\a" }
+kill-region() { zle .kill-region; copy_to_clipboard }
 zle -N kill-region
 
 if  [ $DISPLAY ] && which xclip >& /dev/null; then
@@ -143,9 +143,21 @@ zle_highlight+=(paste:none;region:bg=blue)
 
 source ~/.zshrc_private >& /dev/null
 
+copy_to_clipboard() {
+    if  [ $TERM = 'screen' ]; then
+	if  [ $TMUX ]; then
+	    printf "\ePtmux;\e\e]52;c;$(echo -n $CUTBUFFER | base64)\a\e\\"
+	else
+	    printf "\eP\e]52;c;$(echo -n $CUTBUFFER | base64)\a\e\\"
+	fi
+    else
+	printf "\e]52;c;$(echo -n $CUTBUFFER | base64)\a"
+    fi
+}
+
 # Store the time for every command run
 # See: http://stackoverflow.com/questions/12580675/zsh-preexec-command-modification
-    
+
 function time_and_accept {
     BUFFER="/usr/bin/time -ao /tmp/time-stats $BUFFER"
     zle accept-line
