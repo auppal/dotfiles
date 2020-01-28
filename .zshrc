@@ -130,7 +130,11 @@ kill-region() { zle .kill-region; copy_to_clipboard }
 zle -N kill-region
 
 if  [ $DISPLAY ] && which xclip >& /dev/null; then
-    yank() { LBUFFER=$LBUFFER$(xclip -o) }
+    # yank() { LBUFFER=$LBUFFER$(xclip -o) }
+    yank() { paste_osc52 }
+    zle -N yank
+else
+    yank() { paste_osc52 }
     zle -N yank
 fi
 
@@ -144,14 +148,69 @@ zle_highlight+=(paste:none;region:bg=blue)
 source ~/.zshrc_private >& /dev/null
 
 copy_to_clipboard() {
+    if  [ $DISPLAY ] && which xclip >& /dev/null; then
+	printf "%s" $CUTBUFFER | xclip -i
+    else
+	copy_osc52
+    fi
+
+}
+
+
+# Base64 data in the response was inserted from the starting offset plus 6 header characters
+# up until the new cursor location.
+
+backward-transform-pasted-line() {
+    ENCODED=${BUFFER[$(($start + 6)),$CURSOR]}
+    LBUFFER=${LBUFFER[1,$start]}
+    printf "\e[0m\e[?25h" # Restore text and cursor
+    LBUFFER=$LBUFFER$(echo -n $ENCODED | base64 -d)
+    bindkey "^G" send-break
+}
+zle -N backward-transform-pasted-line
+
+
+if  [ $TERM = 'screen' ]; then
+    if  [ $TMUX ]; then
+	# Paste under tmux copies to tmux's internal clipboard.
+	OSC52_PASTE="\ePtmux;\e\e]52;c;?\a\e\\"
+	yank() { paste_osc52_tmux }
+	zle -N yank
+    else
+	OSC52_PASTE="\eP\e]52;c;?\a\e\\"
+    fi
+else
+    OSC52_PASTE="\e]52;c;?\a"
+fi
+
+paste_osc52() {
+    start=$CURSOR
+    bindkey -r "^G"
+    # Temporarily install a handler to process the response, triggered by the "\a" bell character.
+    bindkey "^G" backward-transform-pasted-line
+    # Try to camouflage the pasted data with black text and invisible attribute, set hidden cursor,
+    # and finally send the OSC 52 query string.
+    # Using stty to disable echo does not work within zle.
+    printf "\e[8;30m\e[?25l"
+    printf $OSC52_PASTE
+    # The OSC 52 response will be in the same form: \e]52;c;<base64 data>\a
+}
+
+paste_osc52_tmux() {
+    printf $OSC52_PASTE
+    sleep 0.05
+    LBUFFER=$LBUFFER$(tmux paste)
+}
+
+copy_osc52() {
     if  [ $TERM = 'screen' ]; then
 	if  [ $TMUX ]; then
-	    printf "\ePtmux;\e\e]52;c;$(echo -n $CUTBUFFER | base64)\a\e\\"
+	    printf "\ePtmux;\e\e]52;c;$(printf '%s' $CUTBUFFER | base64 --wrap=0)\a\e\\"
 	else
-	    printf "\eP\e]52;c;$(echo -n $CUTBUFFER | base64)\a\e\\"
+	    printf "\eP\e]52;c;$(printf '%s' $CUTBUFFER | base64 --wrap=0)\a\e\\"
 	fi
     else
-	printf "\e]52;c;$(echo -n $CUTBUFFER | base64)\a"
+	printf "\e]52;c;%s\a" "$(printf "%s" $CUTBUFFER | base64 --wrap=0)"
     fi
 }
 
@@ -182,4 +241,4 @@ export LESS_TERMCAP_so=$'\e'"[1;44;33m"
 export LESS_TERMCAP_ue=$'\e'"[0m"
 export LESS_TERMCAP_us=$'\e'"[1;32m"
 
-which dircolors >& /dev/null && eval $(dircolors)
+eval $(dircolors) >& /dev/null
