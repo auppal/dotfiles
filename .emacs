@@ -74,7 +74,7 @@
 (setq auto-mode-alist (cons '("\\.m\\'" . octave-mode) auto-mode-alist))
 (setq auto-mode-alist (cons '("\\.cu\\'" . c-mode) auto-mode-alist))
 
-
+(setq visible-cursor nil)
 (if (fboundp 'blink-cursor-mode) (blink-cursor-mode 0))
 (require 'ibuffer)
 ;;(require 'dict)
@@ -266,8 +266,7 @@ This command switches you to your browser."
     (if (string= buffer-file-name "/home/ahsen/org/tasks.org")
         (org-mobile-push))))
 
-
-(set-fringe-mode 0)
+(if (fboundp 'set-fringe-mode) (set-fringe-mode 0))
 ;;(set-face-attribute 'fringe nil :background nil)
 
 ;; Specify font here for use with gnuclient and emacsclient.
