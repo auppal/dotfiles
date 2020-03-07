@@ -188,7 +188,7 @@ fi
 # scheme is light or dark. But this is not passed through ssh, so default to dark
 # in that case.
 if [ ! $COLORFGBG ]; then
-    export COLORFGBG=default;default;0
+    export COLORFGBG="default;default;0"
 fi
 
 copy_to_clipboard() {
