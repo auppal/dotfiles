@@ -22,11 +22,6 @@ alias ll='ls -lArt'
 alias l='ls -lArt'
 alias xo=xdg-open
 
-
-# if [ $TERM = "rxvt-unicode-256color" ]; then
-#     alias ssh='TERM=xterm-color ssh'
-# fi
-
 if which eipe >& /dev/null; then
 #    e() { eipe "$@" >& /dev/null || (if [ $DISPLAY ]; then (emacsclient -c --alternate-editor="" -q "$@" -n) else (emacsclient -c --alternate-editor="" -q "$@") fi) }
     # Disable xterm cell motion mouse tracking after exiting emacsclient.
