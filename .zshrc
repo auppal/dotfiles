@@ -31,9 +31,13 @@ if which eipe >& /dev/null; then
 	printf '\e[?1002l\e]12;gray\a'
 	}
     export EDITOR='emacsclient --tty -c --alternate-editor="" -q '
-elif which emacs >& /dev/null; then
+elif which emacsclient >& /dev/null; then
+    e() {
+	printf '\e]12;orange\a' # Cursor color
+	emacsclient --tty -c --alternate-editor="" -q "$@"
+	printf '\e[?1002l\e]12;gray\a'
+	}
     export EDITOR='emacsclient -c --alternate-editor="" -q '
-    alias e=$EDITOR
 else
     export EDITOR=mg
     alias e=$EDITOR
