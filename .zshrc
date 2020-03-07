@@ -30,7 +30,11 @@ alias xo=xdg-open
 if which eipe >& /dev/null; then
 #    e() { eipe "$@" >& /dev/null || (if [ $DISPLAY ]; then (emacsclient -c --alternate-editor="" -q "$@" -n) else (emacsclient -c --alternate-editor="" -q "$@") fi) }
     # Disable xterm cell motion mouse tracking after exiting emacsclient.
-    e() { eipe "$@" >& /dev/null || (emacsclient --tty -c --alternate-editor="" -q "$@"; printf '\e[?1002l') }
+    e() {
+	printf '\e]12;orange\a' # Cursor color
+	eipe "$@" >& /dev/null || (emacsclient --tty -c --alternate-editor="" -q "$@")
+	printf '\e[?1002l\e]12;gray\a'
+	}
     export EDITOR='emacsclient --tty -c --alternate-editor="" -q '
 elif which emacs >& /dev/null; then
     export EDITOR='emacsclient -c --alternate-editor="" -q '
@@ -120,24 +124,6 @@ setopt hist_ignore_space # No saving for cmds beginning with a space
 # correction
 # setopt correctall
 
-kill-line() { zle .kill-line ; copy_to_clipboard; }
-zle -N kill-line
-
-copy-region-as-kill() { zle .copy-region-as-kill ; copy_to_clipboard}
-zle -N copy-region-as-kill
-
-kill-region() { zle .kill-region; copy_to_clipboard }
-zle -N kill-region
-
-if  [ $DISPLAY ] && which xclip >& /dev/null; then
-    # yank() { LBUFFER=$LBUFFER$(xclip -o) }
-    yank() { paste_osc52 }
-    zle -N yank
-else
-    yank() { paste_osc52 }
-    zle -N yank
-fi
-
 bindkey -e
 bindkey "^K" kill-line
 bindkey "^W" kill-region
@@ -147,6 +133,64 @@ zle_highlight+=(paste:none;region:bg=blue)
 
 source ~/.zshrc_private >& /dev/null
 
+# Store the time for every command run
+# See: http://stackoverflow.com/questions/12580675/zsh-preexec-command-modification
+
+function time_and_accept {
+    BUFFER="/usr/bin/time -ao /tmp/time-stats $BUFFER"
+    zle accept-line
+}
+zle -N time_and_accept_widget time_and_accept
+# Uncomment to enable
+# bindkey '^J' time_and_accept_widget
+# bindkey '^M' time_and_accept_widget
+
+export LESS='-XFR'
+
+which eman >& /dev/null && alias man=eman && compdef _man eman
+
+export TERMINFO=$HOME/.terminfo
+
+# From: http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
+# and http://unix.stackexchange.com/questions/6010/colored-man-pages-not-working-on-gentoo
+export GROFF_NO_SGR=1
+export LESS_TERMCAP_mb=$'\e'"[1;31m"
+export LESS_TERMCAP_md=$'\e'"[1;31m"
+export LESS_TERMCAP_me=$'\e'"[0m"
+export LESS_TERMCAP_se=$'\e'"[0m"
+export LESS_TERMCAP_so=$'\e'"[1;44;33m"
+export LESS_TERMCAP_ue=$'\e'"[0m"
+export LESS_TERMCAP_us=$'\e'"[1;32m"
+
+eval $(dircolors) >& /dev/null
+
+kill-line() { zle .kill-line ; copy_to_clipboard; }
+zle -N kill-line
+
+copy-region-as-kill() { zle .copy-region-as-kill ; copy_to_clipboard}
+zle -N copy-region-as-kill
+
+kill-region() { zle .kill-region; copy_to_clipboard }
+zle -N kill-region
+
+if [ $DISPLAY ] && which xclip >& /dev/null; then
+    yank() { LBUFFER=$LBUFFER$(xclip -o) }
+    zle -N yank
+else
+    if [[ $TERM = "rxvt-unicode-256color" || ($TERM = "xterm" && $MLTERM == "") ]]; then
+	echo "osc52_paste enabled"
+	yank() { paste_osc52 }
+	zle -N yank
+    fi
+fi
+
+# Emacs frame-background-mode (and others) use this to determine whether the color
+# scheme is light or dark. But this is not passed through ssh, so default to dark
+# in that case.
+if [ ! $COLORFGBG ]; then
+    export COLORFGBG=default;default;0
+fi
+
 copy_to_clipboard() {
     if  [ $DISPLAY ] && which xclip >& /dev/null; then
 	printf "%s" $CUTBUFFER | xclip -i
@@ -155,7 +199,6 @@ copy_to_clipboard() {
     fi
 
 }
-
 
 # Base64 data in the response was inserted from the starting offset plus 6 header characters
 # up until the new cursor location.
@@ -185,7 +228,6 @@ fi
 
 paste_osc52() {
     start=$CURSOR
-    bindkey -r "^G"
     # Temporarily install a handler to process the response, triggered by the "\a" bell character.
     bindkey "^G" backward-transform-pasted-line
     # Try to camouflage the pasted data with black text and invisible attribute, set hidden cursor,
@@ -214,31 +256,15 @@ copy_osc52() {
     fi
 }
 
-# Store the time for every command run
-# See: http://stackoverflow.com/questions/12580675/zsh-preexec-command-modification
 
-function time_and_accept {
-    BUFFER="/usr/bin/time -ao /tmp/time-stats $BUFFER"
-    zle accept-line
-}
-zle -N time_and_accept_widget time_and_accept
-# Uncomment to enable
-# bindkey '^J' time_and_accept_widget
-# bindkey '^M' time_and_accept_widget
-
-export LESS='-XFR'
-
-which eman >& /dev/null && alias man=eman && compdef _man eman
-
-# From: http://boredzo.org/blog/archives/2016-08-15/colorized-man-pages-understood-and-customized
-# and http://unix.stackexchange.com/questions/6010/colored-man-pages-not-working-on-gentoo
-export GROFF_NO_SGR=1
-export LESS_TERMCAP_mb=$'\e'"[1;31m"
-export LESS_TERMCAP_md=$'\e'"[1;31m"
-export LESS_TERMCAP_me=$'\e'"[0m"
-export LESS_TERMCAP_se=$'\e'"[0m"
-export LESS_TERMCAP_so=$'\e'"[1;44;33m"
-export LESS_TERMCAP_ue=$'\e'"[0m"
-export LESS_TERMCAP_us=$'\e'"[1;32m"
-
-eval $(dircolors) >& /dev/null
+#alias 52=false
+#alias c="export HAVE_OSC52_PASTE=1; bindkey '^G' send-break"
+# try_osc52() {
+#     export HAVE_OSC52_PASTE=0
+#     bindkey "^G" accept-line
+#     echo "\e]52;c;aGlp\a\e]52;c;?\a"
+# }
+#try_osc52
+#unalias c
+#unalias 52
+#~/code/ipython-copy-shell/try_osc52.py && export HAVE_OSC52_PASTE=1
