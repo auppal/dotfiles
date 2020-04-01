@@ -26,14 +26,14 @@ if which eipe >& /dev/null; then
 #    e() { eipe "$@" >& /dev/null || (if [ $DISPLAY ]; then (emacsclient -c --alternate-editor="" -q "$@" -n) else (emacsclient -c --alternate-editor="" -q "$@") fi) }
     # Disable xterm cell motion mouse tracking after exiting emacsclient.
     e() {
-	printf '\e]12;orange\a' # Cursor color
+	printf '\e]0;'$@'\a\e]12;orange\a' # Window title and cursor color
 	eipe "$@" >& /dev/null || (emacsclient --tty -c --alternate-editor="" -q "$@")
 	printf '\e[?1002l\e]12;gray\a'
 	}
     export EDITOR='emacsclient --tty -c --alternate-editor="" -q '
 elif which emacsclient >& /dev/null; then
     e() {
-	printf '\e]12;orange\a' # Cursor color
+	printf '\e]0;'$@'\a\e]12;orange\a' # Window title and cursor color
 	emacsclient --tty -c --alternate-editor="" -q "$@"
 	printf '\e[?1002l\e]12;gray\a'
 	}
@@ -64,7 +64,7 @@ case $TERM in
 	export PS1=$'%n@%m \033[1;32m%d\033[0m\n>'
 	;;
     screen*)
-	export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
+	export PS1=$'\e]0;%m %~\a'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
 
 	# See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
 	preexec () {
@@ -75,14 +75,14 @@ case $TERM in
 	}
 	;;
     xterm*)
-        export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
+        export PS1=$'\e]0;%m %~\a'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
 	;;
     eterm*)
         # emacs won't set window title
 	export PS1=$'%n@%m \033[1;32m%d\033[0m\n>'
 	;;
     rxvt*)
-        export PS1=$'\033]0;%n@%m %d\007'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
+        export PS1=$'\e]0;%m %~\a'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
         ;;
     *)
 	export PS1=$'%n@%m %d\n>'
