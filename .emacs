@@ -131,6 +131,7 @@
 (setq-default Man-notify-method 'pushy)
 ;; Colorize man pages
 ;; https://emacs.stackexchange.com/questions/21499/how-does-one-colorize-keywords-in-info-pages-like-in-man
+(require 'man)
 (set-face-attribute 'Man-overstrike nil :inherit font-lock-comment-face :bold t)
 (set-face-attribute 'Man-underline nil :inherit font-lock-function-name-face :underline t)
 
