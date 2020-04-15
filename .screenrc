@@ -1,7 +1,7 @@
+#-*- mode: conf -*-
 # Written by Ahsen Uppal
-# Copyright (C) 2015, Ahsen Uppal
+# Copyright (C) 2020, Ahsen Uppal
 # All rights reserved.
-#
 
 escape ^jj
 vbell off
