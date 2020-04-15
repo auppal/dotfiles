@@ -27,16 +27,10 @@ bindkey -m "^[b" stuff b
 bindkey -m "^G" stuff ^[
 bindkey -m "^[w" stuff "^M"
 
-#bind ^Y eval "stuff cat" "stuff ^M" "paste ." "paste ." "stuff ^D"
-#bind ^Y eval "stuff cat^M" "stuff hello.." "stuff ^D"
-#bind ^Y eval "stuff cat" "stuff ^M" "paste 1" "stuff ^D"
-#bind ^Y eval "writebuf /tmp/hello"
+term screen-256color
+bell_msg "Bell in window %n ^G"
+nonblock on
 
-#bindkey -m "^M" stuff ">"
-bind "^X" eval "writebuf" "screen /home/auppal/bin/daemon -- xclip -in /tmp/screen-exchange"
-#bind "^Y" eval "screen /home/auppal/bin/daemon -- xclip -out > /tmp/out"
-#bind  "^Y" eval "screen xclip-out.sh" "echo reading" "readbuf" "paste"
-#bind "^Y" stuff ^[[2~
-#bind "^Y" stuff "\0033\0133\0062\0176"
-
-#"screen xclip -in /tmp/foo&!" "echo done"
+# Attempt copy to clipboard integration (currently only works via osc52 copy):
+bufferfile $HOME/.screen_exchange
+bindkey -m "^M" eval "stuff >" "screen zsh -c 'copy-to-clipboard < /home/ahsen/.screen_exchange; rm ~/.screen_exchange'"
