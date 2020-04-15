@@ -33,4 +33,5 @@ nonblock on
 
 # Attempt copy to clipboard integration (currently only works via osc52 copy):
 bufferfile $HOME/.screen_exchange
-bindkey -m "^M" eval "stuff >" "screen $SHELL -c 'copy-to-clipboard < ~/.screen_exchange; rm ~/.screen_exchange'"
+# The -c -1 argument to head cuts off the extra character which screen annoyingly copies.
+bindkey -m "^M" eval "stuff >" "screen $SHELL -c 'head -c -1 ~/.screen_exchange | copy-to-clipboard; rm ~/.screen_exchange'"
