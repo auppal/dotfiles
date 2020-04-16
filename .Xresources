@@ -5,38 +5,89 @@
 ! To merge this file, run:
 ! xrdb -merge $HOME/.Xresources
 
-! Fix xterm alt+key sequences
-xterm*eightBitInput: false
-xterm*backarrowKey: false
-! xterm fast scrolling is useful but very ugly
-! xterm*fastScroll: true
-
-XTerm*bellIsUrgent: true
 URxvt*urgentOnBell: true
+
+! For my display and font combination a 3 px internal border fits
+! seamlessly when splitting two instances horizontally across.
+!  7x14  4
+!  9x15  3
+! 10x20  5
+
+URxvt.internalBorder: 3
+emacs.internalBorder: 3
+URxvt.font:         9x15
+! URxvt.boldFont:     9x15
 
 URxvt.colorIT:      #87af5f
 URxvt.colorBD:      #d7d7d7
 URxvt.colorUL:      #87afd7
+URxvt*color12:      #2255ff
+URxvt.highlightColor: blue
 
 URxvt.iso14755: true
-URxvt.boldFont:
 
 ! Solarized colors
 ! https://gist.github.com/yevgenko/1167205
-URxvt*background: #002b36
-URxvt*foreground: #657b83
-
+! URxvt*background: #002b36
+! URxvt*foreground: #657b83
+URxvt*background: black
+URxvt*foreground: gray
 
 ! Disable perl extensions in urxvt
-! URxvt.perl-ext:
-! URxvt.perl-ext-common:
+! URxvt.perl-ext-common: confirm-paste,keyboard-select-emacs,52-osc
+URxvt.perl-ext-common: keyboard-select-emacs,52-osc,eval
+URxvt.keysym.M-Escape: perl:keyboard-select-emacs:activate
+URxvt.keysym.C-Escape: perl:keyboard-select-emacs:activate
+! C-y unbound due to emacs yank issue.
+! URxvt.keysym.C-y: eval:paste_primary
+! URxvt.keysym.C-t: perl:sixel:activate
+URxvt.scrollBar: false
 
-! urxvt-perls
-URxvt.perl-ext-common: ...,keyboard-select
-URxvt.keysym.M-Escape: perl:keyboard-select:activate
-! URxvt.keysym.C-s: perl:keyboard-select:activate
-URxvt.keysym.M-r: perl:keyboard-select:search
+! Send Ctrl-x and Ctrl-s using Hyper (mapped to mod4)
+! 4-x sends Ctrl-X
+URxvt.keysym.4-c: string:\003
+URxvt.keysym.4-x: string:\030
+URxvt.keysym.4-s: string:\023
+
+! URxvt.keysym.M-s: perl:keyboard-select:activate
+! URxvt.keysym.M-r: perl:keyboard-select:search
+! URxvt.keysym.M-c: perl:clipboard:copy
+
 Urxvt.saveLines: 5000
+URxvt*transparent: true
+! URxvt*shading: 0 to 99 darkens, 101 to 200 lightens
+URxvt*shading: 20
+
+! From the urxvt man page:
+! The "secondaryScroll" configures urxvt to scroll in full-screen apps,
+! like screen, so lines scrolled out of screen end up in the scrollback buffer.
+URxvt.secondaryScroll:  true
+
+! Do not scroll to the bottom when tty receives output.
+URxvt*scrollTtyOutput:  false
+! Scroll to bottom when a non-special key is pressed.
+URxvt*scrollTtyKeypress: true
+! Dump contents when print key is pressed.
+URxvt*print-pipe: cat > $HOME/$(echo urxvt.dump.$(date +'%Y-%M-%d-%H-%m-%S'))
+
+! Fix xterm alt+key sequences
+xterm*allowWindowOps: true
+xterm*background: black
+xterm*foreground: gray
+xterm*font:       9x15
+xterm*eightBitInput: false
+xterm*backarrowKey: false
+xterm*ttyModes: erase ^?
+! xterm fast scrolling is useful but very ugly
+! xterm*fastScroll: true
+
+XTerm*bellIsUrgent: true
+
+! Try to enable sixel support:
+XTerm*decTerminalID: vt340
+XTerm*sixelScrolling: true
+XTerm*regisScreenSize: 1920x1080
+XTerm*numColorRegisters: 256
 
 ! See:
 ! https://bugs.launchpad.net/ubuntu/+source/x11-apps/+bug/788596
