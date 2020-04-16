@@ -175,7 +175,7 @@ if [ $DISPLAY ] && which xclip >& /dev/null; then
     yank() { LBUFFER=$LBUFFER$(xclip -o) }
     zle -N yank
 else
-    if [[ $TERM = "rxvt-unicode-256color" || ($TERM = "xterm" && $MLTERM == "") || $TERM = "screen" ]]; then
+    if [[ $TERM = "rxvt-unicode-256color" || ($TERM = "xterm" && $MLTERM == "") || $TERM = "screen" || $TERM = "screen-256color" ]]; then
 	# echo "osc52_paste enabled"
 	yank() { paste_osc52 }
 	zle -N yank
