@@ -22,25 +22,7 @@ alias ll='ls -lArt'
 alias l='ls -lArt'
 alias xo=xdg-open
 
-if which eipe >& /dev/null; then
-    # Disable xterm cell motion mouse tracking after exiting emacsclient.
-    e() {
-	printf '\e]0;'$@'\a\e]12;orange\a' # Window title and cursor color
-	eipe "$@"
-	printf '\e[?1002l\e]12;gray\a'
-	}
-    export EDITOR=eipe
-elif which emacsclient >& /dev/null; then
-    e() {
-	printf '\e]0;'$@'\a\e]12;orange\a' # Window title and cursor color
-	emacsclient --tty -c --alternate-editor="" -q "$@"
-	printf '\e[?1002l\e]12;gray\a'
-	}
-    export EDITOR='emacsclient -c --alternate-editor="" -q '
-else
-    export EDITOR=mg
-    alias e=$EDITOR
-fi
+source ~/dotfiles/editor.sh
 
 if [ -f /etc/os-release ]; then
     source /etc/os-release
