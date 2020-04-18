@@ -31,7 +31,6 @@ term screen-256color
 bell_msg "Bell in window %n ^G"
 nonblock on
 
-# Attempt copy to clipboard integration (currently only works via osc52 copy):
+# Attempt copy to clipboard integration.
 bufferfile $HOME/.screen_exchange
-# The -c -1 argument to head cuts off the extra character which screen annoyingly copies.
-bindkey -m "^M" eval "stuff >" "screen $SHELL -c 'copy-to-clipboard < ~/.screen_exchange ; rm ~/.screen_exchange'"
+bindkey -m "^M" eval "stuff >" "screen $SHELL -c 'source ~/dotfiles/copy_clipboard.sh && CUTBUFFER=$(cat ~/.screen_exchange) && copy_to_clipboard ; rm ~/.screen_exchange'"
