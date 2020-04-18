@@ -104,7 +104,9 @@ export PATH=$HOME/bin:$PATH:/sbin
 
 # Fix M-b and M-f of /, etc.
 export WORDCHARS=''
-export LC_ALL=en_US.UTF-8
+# export LC_ALL=en_US.UTF-8
+export LANG=en_US.UTF-8
+export LC_TIME=C
 
 #if [ -z "$STY" ]; then
 #    screen -xRR
@@ -189,14 +191,8 @@ if [ ! $COLORFGBG ]; then
     export COLORFGBG="default;default;0"
 fi
 
-copy_to_clipboard() {
-    if  [ $DISPLAY ] && which xclip >& /dev/null; then
-	printf "%s" $CUTBUFFER | xclip -i
-    else
-	copy_osc52
-    fi
-
-}
+# Load the clipboard copy functions.
+source ~/dotfiles/copy_clipboard.sh
 
 # Base64 data in the response was inserted from the starting offset plus 6 header characters
 # up until the new cursor location.
@@ -241,28 +237,3 @@ paste_osc52_tmux() {
     sleep 0.05
     LBUFFER=$LBUFFER$(tmux paste)
 }
-
-copy_osc52() {
-    if  [[ $TERM = 'screen' || $TERM = 'screen-256color' ]]; then
-	if  [ $TMUX ]; then
-	    printf "\ePtmux;\e\e]52;c;$(printf '%s' $CUTBUFFER | base64 --wrap=0)\a\e\\"
-	else
-	    printf "\eP\e]52;c;$(printf '%s' $CUTBUFFER | base64 --wrap=0)\a\e\\"
-	fi
-    else
-	printf "\e]52;c;%s\a" "$(printf "%s" $CUTBUFFER | base64 --wrap=0)"
-    fi
-}
-
-
-#alias 52=false
-#alias c="export HAVE_OSC52_PASTE=1; bindkey '^G' send-break"
-# try_osc52() {
-#     export HAVE_OSC52_PASTE=0
-#     bindkey "^G" accept-line
-#     echo "\e]52;c;aGlp\a\e]52;c;?\a"
-# }
-#try_osc52
-#unalias c
-#unalias 52
-#~/code/ipython-copy-shell/try_osc52.py && export HAVE_OSC52_PASTE=1
