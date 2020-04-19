@@ -50,9 +50,6 @@ case $TERM in
 	# See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
 	preexec () {
 	    echo -ne "\ek${USER}@${HOST} $PWD ${1%% *}\e\\"
-	    if [ $DISPLAY ] && [ $DISPLAY != ":0.0" ]; then
-		export DISPLAY=`cat ~/.display`
-	    fi
 	}
 	;;
     xterm*)
@@ -115,17 +112,7 @@ zle_highlight+=(paste:none;region:bg=blue)
 
 source ~/.zshrc_private >& /dev/null
 
-# Store the time for every command run
-# See: http://stackoverflow.com/questions/12580675/zsh-preexec-command-modification
-
-function time_and_accept {
-    BUFFER="/usr/bin/time -ao /tmp/time-stats $BUFFER"
-    zle accept-line
-}
-zle -N time_and_accept_widget time_and_accept
-# Uncomment to enable
-# bindkey '^J' time_and_accept_widget
-# bindkey '^M' time_and_accept_widget
+# source ~/dotfiles/experimental.sh
 
 export LESS='-XFR'
 
