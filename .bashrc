@@ -35,3 +35,46 @@ export LSCOLORS="ExFxCxDxBxegedabagacad"
 
 export EDITOR=emacs
 export HISTFILE=$HOME/.bash_history
+
+source ~/dotfiles/copy_clipboard.sh
+
+# Based on: https://stackoverflow.com/questions/994563/integrate-readlines-kill-ring-and-the-x11-clipboard
+kill_clipboard() {
+    CUTBUFFER=${READLINE_LINE:$READLINE_POINT}
+    copy_to_clipboard
+    READLINE_LINE=${READLINE_LINE:0:$READLINE_POINT}
+}
+bind -x '"\C-k": kill_clipboard'
+
+yank_clipboard() {
+    PASTED=$(xclip -o)
+    READLINE_LINE="${READLINE_LINE:0:$READLINE_POINT}$PASTED${READLINE_LINE:$READLINE_POINT}"
+    READLINE_POINT=$(($READLINE_POINT + ${#PASTED}))
+}
+#bind -x '"\C-y": yank_clipboard'
+
+
+OSC52_PASTE="\e]52;c;?\a"
+
+backward-transform-pasted-line() {
+    osc_len=$((${#READLINE_LINE} - $old_len - 5))
+    offset=$(($start + 5))
+    osc_encoded=${READLINE_LINE:$offset:$osc_len}
+    osc_decoded=$(echo -n $osc_encoded | base64 -d)
+
+    READLINE_LINE=${READLINE_LINE:0:$start}$osc_decoded${READLINE_LINE:$(($offset + $osc_len))}
+    READLINE_POINT=$(($start + ${#osc_decoded}))
+
+    # Remove the key binding.
+    bind -r "\C-g"
+}
+
+paste_osc52() {
+    start=$READLINE_POINT
+    old_len=${#READLINE_LINE}
+    bind -x '"\C-g": backward-transform-pasted-line'
+    printf $OSC52_PASTE
+}
+bind -x '"\C-y": paste_osc52'
+
+source ~/dotfiles/editor.sh
