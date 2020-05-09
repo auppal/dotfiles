@@ -76,8 +76,9 @@
 
 (setq visible-cursor nil)
 (if (fboundp 'blink-cursor-mode) (blink-cursor-mode 0))
-(require 'ibuffer)
 ;;(require 'dict)
+
+(require 'ibuffer)
 (define-key global-map "\C-x\C-b" 'ibuffer)
 (add-hook 'ibuffer-mode-hook (lambda () (ibuffer-auto-mode 1)))
 
@@ -242,6 +243,12 @@ This command switches you to your browser."
 ;; (with-demoted-errors (require 'ein-dev))
 (with-demoted-errors (require 'ein) (require 'ein-loaddefs) (require 'ein-notebook) (require 'ein-subpackages))
 
+;; https://stackoverflow.com/questions/23378271/how-do-i-display-ansi-color-codes-in-emacs-for-any-mode
+;; (with-demoted-errors (require 'ansi-color))
+(require 'ansi-color)
+(defun ansi-colors-buffer()
+  (interactive)(ansi-color-apply-on-region (point-min) (point-max)))
+
 
 ;; Disable version control handlers (for speed)
 ;; http://shallowsky.com/blog/linux/editors/no-emacs-version-control.html
@@ -303,6 +310,7 @@ This command switches you to your browser."
 (set-face-foreground 'mode-line "#aaaa99")
 (set-face-background 'mode-line "#333333")
 (set-face-foreground 'line-number "#333333")
+(set-face-foreground 'line-number-current-line "#aaaa99")
 
 (set-face-attribute 'mode-line-buffer-id nil :foreground "white" :bold t)
 
