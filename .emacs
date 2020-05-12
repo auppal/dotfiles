@@ -24,6 +24,7 @@
 ;; (global-font-lock-mode t) ;; syntax highlighting
 (show-paren-mode t) ;; paren highlighting
 
+;; Keybindings
 ;; make control-h backspace
 ;; keyboard-translate is per terminal, so better is the translation-map
 (keyboard-translate ?\C-h ?\C-?)
@@ -227,30 +228,7 @@ This command switches you to your browser."
 ;; Disable version control handlers (for speed)
 ;; http://shallowsky.com/blog/linux/editors/no-emacs-version-control.html
 ;; (setq vc-handled-backends nil)
-
-;; Try to use mobileorg
-;; http://svn.red-bean.com/repos/main/3bits/mobile_org_3bits.txt
-;; http://superuser.com/questions/645079/mobileorg-not-finding-emacs-org-file-with-ssh-server
 (setq org-directory "~/org")
-(setq org-mobile-directory "/mnt/hub/org")
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(org-agenda-files (quote ("~/org/tasks.org")))
- '(package-selected-packages
-   (quote
-    (xclip doom-modeline vterm flycheck px dtrt-indent ein))))
-(setq org-mobile-inbox-for-pull (concat org-directory "/index.org"))
-
-;; org-mobile-push upon save
-;; http://stackoverflow.com/questions/8432108/how-to-automatically-do-org-mobile-push-org-mobile-pull-in-emacs
-(add-hook 
-  'after-save-hook 
-  (lambda () 
-    (if (string= buffer-file-name "/home/ahsen/org/tasks.org")
-        (org-mobile-push))))
 
 ;; Set the appearance
 ; To temprarily enable transient-mark-mode, use C-SPC C-SPC
