@@ -42,9 +42,10 @@
 
       (modify-frame-parameters nil '((wait-for-wm . nil)))
 
+
 ;; make control-h backspace
+;; keyboard-translate is per terminal, so better is the translation-map
 (keyboard-translate ?\C-h ?\C-?)
-;; better:
 (define-key key-translation-map [?\C-h] [?\C-?])
 
 ;; Commented out because using save-buffers-kill-terminal (C-x C-c) is better.
@@ -313,12 +314,6 @@ This command switches you to your browser."
 (set-face-foreground 'line-number-current-line "#aaaa99")
 
 (set-face-attribute 'mode-line-buffer-id nil :foreground "white" :bold t)
-
-
-;;(set-frame-parameter (selected-frame) 'alpha '(<active> . <inactive>))
-;;(set-frame-parameter (selected-frame) 'alpha <both>)
-(set-frame-parameter (selected-frame) 'alpha '(85 . 85))
-(add-to-list 'default-frame-alist '(alpha . (85 . 85)))
 
 ;; Enable using xclip even in the terminal.
 (with-demoted-errors (xclip-mode 1))
