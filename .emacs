@@ -44,12 +44,6 @@
 (define-key global-map "\M-\C-h" 'backward-kill-word)
 (define-key global-map "\C-x\C-f" 'ffap)
 
-
-
-(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
-(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
-(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
-
 ;; And File modes
 (autoload 'python-mode "python-mode.el" "Enter Python mode." t)
 (setq auto-mode-alist (cons '("\\.py\\'" . python-mode) auto-mode-alist))
@@ -260,11 +254,15 @@ This command switches you to your browser."
     (if (string= buffer-file-name "/home/ahsen/org/tasks.org")
         (org-mobile-push))))
 
+;; Set the appearance
+(if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
+(if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
+(if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
+
 (if (fboundp 'set-fringe-mode) (set-fringe-mode 0))
 ;;(set-face-attribute 'fringe nil :background nil)
 
-;; Specify font here for use with gnuclient and emacsclient.
-
+;; Specify fonts here for use with gnuclient and emacsclient.
 (add-to-list 'default-frame-alist '(font . "9x15"))
 (add-to-list 'default-frame-alist '(cursor-color . "orange"))
 (add-to-list 'default-frame-alist '(foreground-color . "grey"))
@@ -281,6 +279,13 @@ This command switches you to your browser."
 (add-hook 'after-make-frame-functions 'set-background-for-terminal)
 (add-hook 'window-setup-hook 'set-background-for-terminal)
 
+(set-face-foreground 'mode-line "#aaaa99")
+(set-face-background 'mode-line "#333333")
+(set-face-foreground 'line-number "#333333")
+(set-face-foreground 'line-number-current-line "#aaaa99")
+(set-face-attribute 'mode-line-buffer-id nil :foreground "white" :bold t)
+
+
 
 ;; Place all backups in one place. flat, no tree structure
 (setq backup-directory-alist '(("" . "~/.emacs.d/emacs-backup")))
@@ -288,13 +293,6 @@ This command switches you to your browser."
 (define-key key-translation-map [?\H-x] [?\C-x])
 (define-key key-translation-map [?\H-s] [?\C-s])
 (define-key key-translation-map [?\H-c] [?\C-c])
-
-(set-face-foreground 'mode-line "#aaaa99")
-(set-face-background 'mode-line "#333333")
-(set-face-foreground 'line-number "#333333")
-(set-face-foreground 'line-number-current-line "#aaaa99")
-
-(set-face-attribute 'mode-line-buffer-id nil :foreground "white" :bold t)
 
 ;; Enable using xclip even in the terminal.
 (with-demoted-errors (xclip-mode 1))
