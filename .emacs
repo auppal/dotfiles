@@ -103,6 +103,7 @@
       display-buffer-reuse-frames t
       special-display-regexps '(("^\\*.*\\*$" pop-to-buffer-same-frame)))
 
+;; Support for man pages
 (setq special-display-regexps
     '("\*Man .*\*"))
 (setq-default Man-notify-method 'pushy)
@@ -120,9 +121,6 @@
                (and (get-buffer buffer)
                     (kill-buffer buffer)))
 ))
-
-; To temprarily enable, use C-SPC C-SPC
-(transient-mark-mode 0)
 
 (with-demoted-errors (require 'dtrt-indent) (dtrt-indent-mode 1))
 
@@ -255,6 +253,9 @@ This command switches you to your browser."
         (org-mobile-push))))
 
 ;; Set the appearance
+; To temprarily enable transient-mark-mode, use C-SPC C-SPC
+(transient-mark-mode 0)
+
 (if (fboundp 'menu-bar-mode) (menu-bar-mode -1))
 (if (fboundp 'tool-bar-mode) (tool-bar-mode -1))
 (if (fboundp 'scroll-bar-mode) (scroll-bar-mode -1))
