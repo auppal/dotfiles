@@ -176,7 +176,7 @@ backward-transform-pasted-line() {
 zle -N backward-transform-pasted-line
 
 
-if  [ $TERM = 'screen' ]; then
+if  [[ $TERM = 'screen' || $TERM = "screen-256color" ]]; then
     if  [ $TMUX ]; then
 	# Paste under tmux copies to tmux's internal clipboard.
 	OSC52_PASTE="\ePtmux;\e\e]52;c;?\a\e\\"
