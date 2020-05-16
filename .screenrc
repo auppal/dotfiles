@@ -33,4 +33,14 @@ nonblock on
 
 # Attempt copy to clipboard integration.
 bufferfile $HOME/.screen_exchange
-bindkey -m "^M" eval "stuff >" "screen $SHELL -c 'source ~/dotfiles/copy_clipboard.sh && CUTBUFFER=$(cat ~/.screen_exchange) && copy_to_clipboard ; rm ~/.screen_exchange'"
+
+# Work around all sorts of bugs.
+# 1. Use stuff a space and writebuf instead of just stuffing > in copy mode because
+# screen gets mixed up between copy-mode bindings and windowlist bindings, and refuses
+# to execute a switch windows when return is typed.
+# 2. Use osc52 instead of xclip even when $DISPLAY is set becuase xclip is subject to
+# timing problems when the shell exits quickly.
+# 3. Stuff a literal carriage return at the end so that ^M continues to work inside command mode.
+
+bindkey -m "^M" eval "stuff \" \"" "writebuf" "screen $SHELL -c 'source ~/dotfiles/copy_clipboard.sh ; CUTBUFFER=$(cat ~/.screen_exchange) && copy_osc52 ; rm ~/.screen_exchange'" "stuff \"
+\""
