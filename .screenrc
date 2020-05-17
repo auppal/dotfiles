@@ -25,7 +25,7 @@ bindkey -m "^[f" stuff e
 bindkey -m "^[b" stuff b
 # otherwise, you must hit escape to break an i-search
 bindkey -m "^G" stuff ^[
-bindkey -m "^[w" stuff "^M"
+#bindkey -m "^[w" stuff "^M"
 
 term screen-256color
 bell_msg "Bell in window %n ^G"
@@ -35,12 +35,7 @@ nonblock on
 bufferfile $HOME/.screen_exchange
 
 # Work around all sorts of bugs.
-# 1. Use stuff a space and writebuf instead of just stuffing > in copy mode because
-# screen gets mixed up between copy-mode bindings and windowlist bindings, and refuses
-# to execute a switch windows when return is typed.
-# 2. Use osc52 instead of xclip even when $DISPLAY is set becuase xclip is subject to
+# Use osc52 instead of xclip even when $DISPLAY is set becuase xclip is subject to
 # timing problems when the shell exits quickly.
-# 3. Stuff a literal carriage return at the end so that ^M continues to work inside command mode.
 
-bindkey -m "^M" eval "stuff \" \"" "writebuf" "screen $SHELL -c 'source ~/dotfiles/copy_clipboard.sh ; CUTBUFFER=$(cat ~/.screen_exchange) && copy_osc52 ; rm ~/.screen_exchange'" "stuff \"
-\""
+bindkey -m "^[w" eval "stuff \" \"" "writebuf" "screen $SHELL -c 'source ~/dotfiles/copy_clipboard.sh ; CUTBUFFER=$(cat ~/.screen_exchange) && copy_osc52 ; rm ~/.screen_exchange'"
