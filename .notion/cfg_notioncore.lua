@@ -242,7 +242,7 @@ defbindings("WMPlex.toplevel", {
 
         bdoc("Run a terminal emulator."),
         kpress("Shift+K", "ioncore.exec_on(_, 'urxvtc -fn fixed')"),
-	kpress("K", "ioncore.exec_on(_, 'kon-big')"),
+	kpress("K", "ioncore.exec_on(_, 'urxvtc')"),
 	kpress("Mod1+K", "ioncore.exec_on(_, 'urxvtc -fn xft:terminus:size=18 -b 0')"),
         kpress("Shift+U", "ioncore.exec_on(_,'exec chromium')"),
         kpress("U", "ioncore.exec_on(_,'exec firefox -newwindow --profile /home/ahsen/.mozilla/firefox/1uu1lgod.default')"),
@@ -270,7 +270,7 @@ defbindings("WMPlex.toplevel", {
         kpress("Mod1+F", "jump_clientwin_or_open(_, 'Facebook', 'firefox https://www.facebook.com')"),
         kpress("Mod1+I", "jump_clientwin_or_open(_, 'Inbox', 'firefox https://mail.google.com')"),
         kpress("Mod1+M", "jump_clientwin_or_open(_, 'Messages', 'firefox https://m.facebook.com/messages')"),
-        kpress("Mod1+P", "jump_clientwin_or_open(_, 'ipython', 'kon-big -e ipython')"),
+        kpress("Mod1+P", "jump_clientwin_or_open(_, 'ipython', 'urxvtc -e ipython')"),
     }),
 
     kpress("Control+Mod1+bracketright", "ioncore.exec_on(_,'mixer.sh +3')"),
