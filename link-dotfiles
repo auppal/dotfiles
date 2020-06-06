@@ -1,4 +1,6 @@
 #!/bin/bash
-ls -d .[^.]*[^~] | grep -vx .git | while read i; do ln -vs $PWD/$i $HOME/$i; done
+ls -d .[^.]*[^~] | grep -vx -e .git -e .urxvt | while read i; do ln -vs $PWD/$i $HOME/$i; done
 mkdir ~/bin
 cp -a copy-to-clipboard ~/bin
+mkdir -p ~/.urxvt/ext
+for i in 52-osc keyboard-select-emacs; do ln -s $PWD/.urxvt/ext/$i ~/.urxvt/ext/$i; done
