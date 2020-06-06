@@ -1,0 +1,55 @@
+#! perl
+# Set urxvt internal border so that there are no gaps in a horizontally split workspace.
+# by Ahsen Uppal
+#
+import urxvt;
+use X11::Protocol;
+my $X = X11::Protocol->new;
+
+my %font_width = (
+    "6x13" => 6,
+    "7x14" => 7,
+    "8x13" => 8,
+    "9x15" => 9,
+    "10x20" => 10,
+    "xft:terminus:size=12" => 8,
+    "xft:terminus:size=13" => 10,
+    "xft:terminus:size=15" => 11,
+    "xft:terminus:size=16" => 11,
+    "xft:terminus:size=18" => 12,
+    "xft:terminus:size=19" => 14
+    );
+
+sub on_init {
+    warn "on_init";
+    my ($self) = @_;
+
+    my $fn = $self->resource("font");
+    warn "fn=$fn";
+
+    my %xgr = $X->GetGeometry($self->DefaultRootWindow);
+    my $width = $xgr{width} / 2;
+    warn "xgr=$xgr{width}";
+
+    # Method 1 (fails):
+    # my $nb = (($width / 2) % $font_width{$fn}) / 2;
+
+    my $nb;
+    my $fw = $font_width{$fn};
+    warn "table fw=$fw";
+    for ($nb=0; $nb<$fw; $nb++) {
+        if ((($width - (2*$nb)) % $fw) == 0) {
+            last;
+        }
+    }
+
+    warn "nb=$nb";
+    $self->resource("int_bwidth", $nb);
+}
+
+sub on_start {
+    my ($self) = @_;
+    my $fw = $self->fwidth();
+    warn "on_start:     font_width=$fw";
+    $self->resource("int_bwidth", 89);
+}
