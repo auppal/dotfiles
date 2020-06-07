@@ -21,35 +21,29 @@ my %font_width = (
     );
 
 sub on_init {
-    warn "on_init";
     my ($self) = @_;
-
-    my $fn = $self->resource("font");
-    warn "fn=$fn";
 
     my %xgr = $X->GetGeometry($self->DefaultRootWindow);
     my $width = $xgr{width} / 2;
-    warn "xgr=$xgr{width}";
 
     # Method 1 (fails):
     # my $nb = (($width / 2) % $font_width{$fn}) / 2;
 
     my $nb;
     my $fw = $font_width{$fn};
-    warn "table fw=$fw";
+
     for ($nb=0; $nb<$fw; $nb++) {
         if ((($width - (2*$nb)) % $fw) == 0) {
             last;
         }
     }
 
-    warn "nb=$nb";
     $self->resource("int_bwidth", $nb);
 }
 
 sub on_start {
     my ($self) = @_;
+    my $fn = $self->resource("font");
     my $fw = $self->fwidth();
-    warn "on_start:     font_width=$fw";
-    $self->resource("int_bwidth", 89);
+    warn "on_start: add $fn => $fw";
 }
