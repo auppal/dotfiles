@@ -30,6 +30,7 @@ sub on_init {
     # my $nb = (($width / 2) % $font_width{$fn}) / 2;
 
     my $nb;
+    my $fn = $self->resource("font");
     my $fw = $font_width{$fn};
 
     for ($nb=0; $nb<$fw; $nb++) {
