@@ -4,3 +4,5 @@ mkdir ~/bin
 cp -a copy-to-clipboard ~/bin
 mkdir -p ~/.urxvt/ext
 for i in 52-osc keyboard-select-emacs border; do ln -s $PWD/.urxvt/ext/$i ~/.urxvt/ext/$i; done
+
+mkdir -p ~/.config/gtk-3.0 ; ln -s $PWD/.config/gtk-3.0/settings.ini ~/.config/gtk-3.0
