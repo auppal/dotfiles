@@ -1,7 +1,5 @@
 #!/bin/sh
 if [ $DISPLAY ]; then 
-    #emacsclient -q -a man -e "(man \"$*\")" > /dev/null
-
     # This version only works when Man-notify-method is set to pushy:
     # emacsclient -nc -a man -e "(man \"$*\")" > /dev/null
     emacsclient --tty -e "(man \"$*\")"
