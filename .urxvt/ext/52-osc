@@ -41,8 +41,8 @@ sub on_osc_seq {
 
     my ($clip, $data) = split ';', $args, 2;
 
-    # Always use clipboard 1 regardless of what was asked.
-    my $clip_idx = 1;
+    # Always use clipboard 0 regardless of what was asked to match the xclip default.
+    my $clip_idx = 0;
 
     if ($data eq '?') {
         my $data_free = `xclip -o`;
@@ -50,6 +50,7 @@ sub on_osc_seq {
     }
     else {
         my $data_decoded = decode_base64($data);
+        # warn "copy to clipboard: $data_decoded";
 
         $term->selection($data_decoded, $clip_idx);
         $term->selection_grab(urxvt::CurrentTime, $clip_idx);
