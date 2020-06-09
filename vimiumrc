@@ -1,0 +1,22 @@
+# Vimium does not actually load ~/.vimiumrc. These contents must be manually added.
+
+# Vimium key mappings:
+umapAll
+map <a-x> Vomnibar.activateBookmarks
+map <C-c> copyCurrentUrl
+map <C-n> scrollDown
+map <C-p> scrollUp
+map <C-SPC> scrollUp
+map <C-s> enterFindMode
+map <c-S> performFind
+map <a-v> scrollFullPageUp
+map <c-v> scrollFullPageDown
+map <C-j> LinkHints.activateModeToOpenInNewForegroundTab
+map [[ goPrevious
+map ]] goNext
+map X LinkHints.activateModeToOpenInNewWindow
+
+# Does not work:
+# map <C-f> LinkHints.activateModeToOpen
+# map <C-f> LinkHints.activateModeToOpenInNew Window
+
