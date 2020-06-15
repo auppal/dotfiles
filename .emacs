@@ -260,8 +260,8 @@ This command switches you to your browser."
 
 (set-face-foreground 'mode-line "#aaaa99")
 (set-face-background 'mode-line "#333333")
-(set-face-foreground 'line-number "#333333")
-(set-face-foreground 'line-number-current-line "#aaaa99")
+(with-demoted-errors (set-face-foreground 'line-number "#333333"))
+(with-demoted-errors (set-face-foreground 'line-number-current-line "#aaaa99"))
 (set-face-attribute 'mode-line-buffer-id nil :foreground "white" :bold t)
 
 
