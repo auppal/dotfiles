@@ -37,8 +37,17 @@ end
 function query_fast(mplex, prog, prompt)
     mod_query.query_execwith(mplex, TR(prompt),
                              nil, -- dflt
-                             prog or ":man", 
+                             prog,
 			     completor_url, -- completor
+                             nil, -- context
+                             false --[[ enable quoting ]])
+end
+
+function query_shell(mplex, prog, prompt)
+    mod_query.query_execwith(mplex, TR(prompt),
+                             nil, -- dflt
+                             prog,
+                             mod_query.exec_completor,
                              nil, -- context
                              false --[[ enable quoting ]])
 end
@@ -81,6 +90,9 @@ defbindings("WScreen", {
         --kpress("J", "WScreen.switch_next(_)"),
 	kpress("J", "ioncore.goto_next_screen()"),
     }),
+
+    -- Unclear why Meta + Tab does not work here. Use external alttab tool.
+    -- kpress(META.."Tab", "ioncore.goto_previous()"),
 
     kpress("Control+Mod1+semicolon", "WScreen.switch_prev(_)"),
     kpress("Control+Mod1+apostrophe", "WScreen.switch_next(_)"),
@@ -149,8 +161,9 @@ defbindings("WScreen", {
     -- the managing group of that window. The right/left directions are
     -- used instead of next/prev, because they work better in conjunction
     -- with tilings.
-    kpress(META.."Tab", "ioncore.goto_next(_chld, 'right')", 
-           "_chld:non-nil"),
+
+    -- kpress(META.."Tab", "ioncore.goto_next(_chld, 'right')", "_chld:non-nil"),
+
     submap(META.."K", { 
         bdoc("Backward-circulate focus."),
         kpress("AnyModifier+Tab", "ioncore.goto_next(_chld, 'left')", 
@@ -228,16 +241,18 @@ defbindings("WMPlex.toplevel", {
         kpress("T", "WRegion.set_tagged(_sub, 'toggle')", "_sub:non-nil"),
 
         bdoc("Run a terminal emulator."),
-        kpress("Shift+K", "ioncore.exec_on(_, 'exec urxvtc -sr -fn fixed -fg grey -bg black +sb')"),
-	kpress("K", "ioncore.exec_on(_, 'kon-big')"),
+        kpress("Shift+K", "ioncore.exec_on(_, 'urxvtc -fn fixed')"),
+	kpress("K", "ioncore.exec_on(_, 'urxvtc')"),
+	kpress("Mod1+K", "ioncore.exec_on(_, 'urxvtc -fn xft:terminus:size=18 -b 0')"),
         kpress("Shift+U", "ioncore.exec_on(_,'exec chromium')"),
-        kpress("U", "ioncore.exec_on(_,'exec firefox -newwindow')"),
+        kpress("U", "ioncore.exec_on(_,'exec firefox -newwindow --profile /home/ahsen/.mozilla/firefox/1uu1lgod.default')"),
         kpress("Mod1+U", "ioncore.exec_on(_,'exec firefox -newwindow --private-window')"),
         -- kpress("slash", "query_fast(_, 'g', 'Google:')"),
         kpress("slash", "query_fast(_, '/home/ahsen/code/web_keyword.py execute', 'Magic:')"), 
         kpress("L", "query_fast(_, '/home/ahsen/code/web_keyword.py execute', 'Magic:')"), 
         --        kpress("G", "ioncore.exec_on(_,'exec emacsclient -c --alternate-editor=\"\" -q')"),
-        kpress("G", "ioncore.exec_on(_,'exec emacsclient -q -c -e \"(ibuffer)\"')"),
+        --        kpress("G", "ioncore.exec_on(_,'exec emacsclient -q -c -e \"(ibuffer)\"')"),
+        kpress("G", "ioncore.exec_on(_,'urxvtc -e emacsclient -nw -q -c')"),
 
         kpress("Shift+Y", "ioncore.exec_on(_, xte_mouse_zero)"),
         kpress("Y", "ioncore.exec_on(_, xte_paste)"),
@@ -248,18 +263,20 @@ defbindings("WMPlex.toplevel", {
         kpress("backslash", "ioncore.exec_on(_, 'exec xcalib -i -a')"),
 
         bdoc("Query for command line to execute."),
-        kpress("C", "mod_query.query_exec(_)"),
+        kpress("C", "query_shell(_, '/bin/zsh -c', 'zsh:')"),
+        -- kpress("C", "mod_query.query_exec(_)"),
         kpress("Shift+C", "ioncore.exec_on(_,'conkeror')"),
 
         kpress("Mod1+F", "jump_clientwin_or_open(_, 'Facebook', 'firefox https://www.facebook.com')"),
         kpress("Mod1+I", "jump_clientwin_or_open(_, 'Inbox', 'firefox https://mail.google.com')"),
         kpress("Mod1+M", "jump_clientwin_or_open(_, 'Messages', 'firefox https://m.facebook.com/messages')"),
-        kpress("Mod1+P", "jump_clientwin_or_open(_, 'ipython', 'kon-big -e ipython')"),
+        kpress("Mod1+P", "jump_clientwin_or_open(_, 'ipython', 'urxvtc -e ipython')"),
     }),
 
     kpress("Control+Mod1+bracketright", "ioncore.exec_on(_,'mixer.sh +3')"),
     kpress("Control+Mod1+bracketleft", "ioncore.exec_on(_,'mixer.sh -3')"),
-
+    kpress("Mod4+Mod1+bracketright", "ioncore.exec_on(_,'mixer.sh +3')"),
+    kpress("Mod4+Mod1+bracketleft", "ioncore.exec_on(_,'mixer.sh -3')"),
 
     kpress("XF86MonBrightnessDown", "ioncore.exec_on(_, 'brightness.sh down')"),
     kpress("XF86MonBrightnessUp", "ioncore.exec_on(_, 'brightness.sh up')"),    
@@ -272,7 +289,7 @@ defbindings("WMPlex.toplevel", {
     kpress("Control+Mod1+N", "ioncore.exec_on(_, xte_mouse_down)"),
     kpress("Control+Mod1+P", "ioncore.exec_on(_, xte_mouse_up)"),
     kpress("Mod1+Left", "ioncore.exec_on(_, xte_xf86back)"),
-    kpress("Print", "ioncore.exec_on(_,'scrot')"),
+    kpress("Mod1+Print", "ioncore.exec_on(_,'scrot')"),
 
     bdoc("Toggle tag of current object."),
     kpress(META.."T", "WRegion.set_tagged(_sub, 'toggle')", "_sub:non-nil"),

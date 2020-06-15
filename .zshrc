@@ -38,33 +38,32 @@ fi
 # set the prompt to both change window title and color the prompt
 
 case $TERM in
-    cons25*)
-	export PS1=$'%n@%m \033[1;32m%d\033[0m\n>'
-	;;
-    linux*)
-	export PS1=$'%n@%m \033[1;32m%d\033[0m\n>'
-	;;
+    cons25*|linux*)
+        export PS1=$'%n@%m \e[1;32m%d\e[0m\n>'
+        ;;
     screen*)
-	export PS1=$'\e]0;%m %~\a'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
-
-	# See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
-	preexec () {
-	    echo -ne "\ek${USER}@${HOST} $PWD ${1%% *}\e\\"
-	}
-	;;
-    xterm*)
-        export PS1=$'\e]0;%m %~\a'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
-	;;
+        setopt prompt_subst
+        export PS1=$'\e]0; ${LAST_CMD} %1c %m\a%n@%m \e[1;31m'$OS_NAME$'\e[1;32m%d\e[0m\n>'
+	    # See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
+	    preexec () {
+                LAST_CMD=${1}
+	            echo -ne "\ek${USER}@${HOST} $PWD ${1%% *}\e\\"
+	    }
+	    ;;
     eterm*)
         # emacs won't set window title
-	export PS1=$'%n@%m \033[1;32m%d\033[0m\n>'
-	;;
-    rxvt*)
-        export PS1=$'\e]0;%m %~\a'$'%n@%m \033[1;31m'$OS_NAME$'\033[1;32m%d\033[0m\n>'
+        export PS1=$'%n@%m \e[1;32m%d\e[0m\n>'
+	    ;;
+    rxvt*|xterm*)
+        setopt prompt_subst
+        export PS1=$'\e]0; ${LAST_CMD} %1c %m\a%n@%m \e[1;31m'$OS_NAME$'\e[1;32m%d\e[0m\n>'
+        preexec () {
+                LAST_CMD=${1}
+        }
         ;;
     *)
-	export PS1=$'%n@%m %d\n>'
-	;;
+        export PS1=$'%n@%m %d\n>'
+	    ;;
 esac
 
 stty -ixon
@@ -99,6 +98,7 @@ export SAVEHIST=$HISTSIZE
 # With sharehistory enabled, no need to set append_history or inc_append_history
 setopt sharehistory
 setopt hist_ignore_space # No saving for cmds beginning with a space
+setopt inc_append_history
 
 # correction
 # setopt correctall

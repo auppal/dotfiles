@@ -20,13 +20,13 @@ de.defstyle("*", {
     
     shadow_pixels = 1,
     highlight_pixels = 1,
-    padding_pixels = 0,
-    spacing = 0,
+    padding_pixels = 1,
+    spacing = 1,
     border_style = "elevated",
     
     font = "-*-helvetica-medium-r-normal-*-14-*-*-*-*-*-*-*",
     text_align = "center",
-    transparent_background = 1,
+    -- transparent_background = 1,
 })
 
 

@@ -1,0 +1,60 @@
+#! perl
+
+=head1 NAME
+
+52-osc - Implement OSC 32 ; Interact with X11 clipboard
+
+=head1 SYNOPSIS
+
+   urxvt -pe 52-osc
+
+=head1 DESCRIPTION
+
+This extension implements OSC 52 for interacting with system clipboard
+
+Original source:
+https://github.com/parantapa/dotfiles/blob/master/urxvt-perl/52-osc
+
+Based on:
+http://ailin.tucana.uberspace.de/static/nei/*/Code/urxvt/
+
+Modified by Ahsen Uppal with fixes.
+
+=cut
+
+use MIME::Base64;
+use Encode;
+
+# Work around a copy-paste bug when using client-server urxvtd.
+# xclip -o can stall on paste if the internal selection is used
+# to set the clipboard.
+#
+sub on_sel_grab {
+    my ($self, $time) = @_;
+    $self->selection($self->selection, 1);
+    $self->selection_grab(urxvt::CurrentTime, 1);
+}
+
+sub on_osc_seq {
+    my ($term, $op, $args) = @_;
+    return () unless $op eq 52;
+
+    my ($clip, $data) = split ';', $args, 2;
+
+    # Always use clipboard 0 regardless of what was asked to match the xclip default.
+    my $clip_idx = 0;
+
+    if ($data eq '?') {
+        my $data_free = `xclip -o`;
+        $term->tt_write("\e]52;$clip;".encode_base64($data_free, '')."\a");
+    }
+    else {
+        my $data_decoded = decode_base64($data);
+        # warn "copy to clipboard: $data_decoded";
+
+        $term->selection($data_decoded, $clip_idx);
+        $term->selection_grab(urxvt::CurrentTime, $clip_idx);
+    }
+
+    ()
+}
