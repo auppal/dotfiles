@@ -206,3 +206,7 @@ paste_osc52_tmux() {
     sleep 0.05
     LBUFFER=$LBUFFER$(tmux paste)
 }
+
+
+which diff-so-fancy >& /dev/null && export GIT_PAGER="diff-so-fancy | less --tabs=4 -RFX --pattern '^(Date|added|deleted|modified):'"
+which delta >& /dev/null && export GIT_PAGER="delta --theme=ansi-dark"
