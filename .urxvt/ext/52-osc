@@ -25,15 +25,22 @@ Modified by Ahsen Uppal with fixes.
 use MIME::Base64;
 use Encode;
 
-# Work around a copy-paste bug when using client-server urxvtd.
-# xclip -o can stall on paste if the internal selection is used
-# to set the clipboard.
+# xclip -o can stall on paste if the internal selection was used
+# to set the clipboard, and we try to paste from the same clipboard.
+# The workaround is to use different clipboard indexes for copying and pasting.
+# I have an external program that syncs these anyway.
+
+# Internally, urxvt uses idx 0 for the selection.
+# If you want to use idx 1 to copy and 0 to paste you will have to 
+# override the default on_sel_grab.
 #
-sub on_sel_grab {
-    my ($self, $time) = @_;
-    $self->selection($self->selection, 1);
-    $self->selection_grab(urxvt::CurrentTime, 1);
-}
+my $copy_clip_idx = 0;
+
+#sub on_sel_grab {
+#    my ($self, $time) = @_;
+#    $self->selection($self->selection, $copy_clip_idx);
+#    $self->selection_grab(urxvt::CurrentTime, $copy_clip_idx);
+#}
 
 sub on_osc_seq {
     my ($term, $op, $args) = @_;
@@ -41,19 +48,20 @@ sub on_osc_seq {
 
     my ($clip, $data) = split ';', $args, 2;
 
-    # Always use clipboard 0 regardless of what was asked to match the xclip default.
-    my $clip_idx = 0;
-
     if ($data eq '?') {
-        my $data_free = `xclip -o`;
+        my $data_free = `xclip -o -selection clipboard`;
         $term->tt_write("\e]52;$clip;".encode_base64($data_free, '')."\a");
     }
     else {
         my $data_decoded = decode_base64($data);
         # warn "copy to clipboard: $data_decoded";
 
-        $term->selection($data_decoded, $clip_idx);
-        $term->selection_grab(urxvt::CurrentTime, $clip_idx);
+ 
+        $term->selection($data_decoded, $copy_clip_idx);
+        $term->selection_grab(urxvt::CurrentTime, $copy_clip_idx);
+
+        # Using xclip for copying also prevents the bug, but at the expense of an additional fork.
+        #`echo $data_decoded | xclip -i`;
     }
 
     ()
