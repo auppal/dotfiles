@@ -258,12 +258,12 @@ This command switches you to your browser."
 (add-hook 'after-make-frame-functions 'set-background-for-terminal)
 (add-hook 'window-setup-hook 'set-background-for-terminal)
 
+;; Faces for display-line-numbers-mode
 (set-face-foreground 'mode-line "#aaaa99")
 (set-face-background 'mode-line "#333333")
 (with-demoted-errors (set-face-foreground 'line-number "#333333"))
 (with-demoted-errors (set-face-foreground 'line-number-current-line "#aaaa99"))
 (set-face-attribute 'mode-line-buffer-id nil :foreground "white" :bold t)
-
 
 
 ;; Place all backups in one place. flat, no tree structure
@@ -281,3 +281,54 @@ This command switches you to your browser."
   (if (equal (buffer-name (current-buffer)) "*scratch*")
       (progn (delete-region (point-min) (point-max)) nil) t))
 (add-hook 'kill-buffer-query-functions 'unkillable-scratch-buffer)
+
+;; Experimental speed fixes.
+(setq bidi-display-reordering nil)
+(setq vc-handled-backends nil)
+(setq py-install-directory "/usr/share/emacs/site-lisp/python-mode")
+
+;; Prevent python-mode from excessively adding to load-path
+(add-hook 'python-mode-hook (defun py-set-load-path ()))
+
+;; Emacs searches each directory for files .dir-locals.el which is slow for remote filesystems.
+;; Tramp mode disables these by default. It should be possible to improve this to only disable
+;; dir local for remote mounts.
+(setq enable-dir-local-variables nil)
+
+
+;; Set terminal titles
+(defun xterm-title-update ()
+    (interactive)
+    (send-string-to-terminal (concat "\033]1; " (buffer-name) "\007"))
+    (if buffer-file-name
+     (send-string-to-terminal (concat "\033]2; " (buffer-file-name) "\007"))
+     (send-string-to-terminal (concat "\033]2; " (buffer-name) "\007"))))
+(add-hook 'post-command-hook 'xterm-title-update)
+
+;; org drill configuration
+(with-demoted-errors (require 'org-drill))
+(setq org-drill-spaced-repetition-algorithm 'simple8)
+(setq org-drill-add-random-noise-to-intervals-p t)
+(setq org-drill-adjust-intervals-for-early-and-late-repetitions-p t)
+
+(defun run_drill_session ()
+  (interactive)
+  (find-file "~/code/mnemosyne-dump/mnemosyne.org")
+  (org-drill))
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   '("711efe8b1233f2cf52f338fd7f15ce11c836d0b6240a18fffffc2cbd5bfe61b0" "99ea831ca79a916f1bd789de366b639d09811501e8c092c85b2cb7d697777f93" "82360e5f96244ce8cc6e765eeebe7788c2c5f3aeb96c1a765629c5c7937c0b5b" "5d09b4ad5649fea40249dd937eaaa8f8a229db1cec9a1a0ef0de3ccf63523014" "dde8c620311ea241c0b490af8e6f570fdd3b941d7bc209e55cd87884eb733b0e" "2cdc13ef8c76a22daa0f46370011f54e79bae00d5736340a5ddfe656a767fddf" "2f1518e906a8b60fac943d02ad415f1d8b3933a5a7f75e307e6e9a26ef5bf570" default))
+ '(doom-modeline-mode t)
+ '(package-selected-packages
+   '(org-drill doom-themes xclip vterm request-deferred px flycheck ein dtrt-indent doom-modeline)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
