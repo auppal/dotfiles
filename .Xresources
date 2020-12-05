@@ -16,6 +16,7 @@ URxvt*urgentOnBell: true
 URxvt.internalBorder: 3
 emacs.internalBorder: 3
 URxvt.font:         9x15
+URxvt.boldFont:     -misc-*-bold-*-*-*-15-*-*-*-*-*-*-*
 ! URxvt.boldFont:     9x15
 
 URxvt.colorIT:      #87af5f
@@ -35,12 +36,16 @@ URxvt*foreground: gray
 
 ! Disable perl extensions in urxvt
 ! URxvt.perl-ext-common: confirm-paste,keyboard-select-emacs,52-osc
-URxvt.perl-ext-common: keyboard-select-emacs,52-osc,eval
+URxvt.selection.pattern-0: ([0-9a-zA-Z]+)
+URxvt.selection.pattern-1: ([\w]+)
+URxvt.selection.pattern-2: ([^/]+)
+URxvt.selection.pattern-3: ([\S]+)
+URxvt.perl-ext-common: keyboard-select-emacs,52-osc,eval,selection,border
 URxvt.keysym.M-Escape: perl:keyboard-select-emacs:activate
 URxvt.keysym.C-Escape: perl:keyboard-select-emacs:activate
 ! C-y unbound due to emacs yank issue.
 ! URxvt.keysym.C-y: eval:paste_primary
-! URxvt.keysym.C-t: perl:sixel:activate
+! URxvt.keysym.4-q: perl:sixel:activate
 URxvt.scrollBar: false
 
 ! Send Ctrl-x and Ctrl-s using Hyper (mapped to mod4)
@@ -55,8 +60,11 @@ URxvt.keysym.4-s: string:\023
 
 Urxvt.saveLines: 5000
 URxvt*transparent: true
+
 ! URxvt*shading: 0 to 99 darkens, 101 to 200 lightens
-URxvt*shading: 20
+URxvt*shading: 80
+! But tinting can achieve the same effect.
+! URxvt*tintColor: #333333
 
 ! From the urxvt man page:
 ! The "secondaryScroll" configures urxvt to scroll in full-screen apps,
@@ -70,6 +78,7 @@ URxvt*scrollTtyKeypress: true
 ! Dump contents when print key is pressed.
 URxvt*print-pipe: cat > $HOME/$(echo urxvt.dump.$(date +'%Y-%M-%d-%H-%m-%S'))
 
+xterm*termName: xterm-256color
 ! Fix xterm alt+key sequences
 xterm*allowWindowOps: true
 xterm*background: black
@@ -81,13 +90,11 @@ xterm*ttyModes: erase ^?
 ! xterm fast scrolling is useful but very ugly
 ! xterm*fastScroll: true
 
-XTerm*bellIsUrgent: true
+xterm*bellIsUrgent: true
 
 ! Try to enable sixel support:
-XTerm*decTerminalID: vt340
-XTerm*sixelScrolling: true
-XTerm*regisScreenSize: 1920x1080
-XTerm*numColorRegisters: 256
+xterm*decTerminalID: vt340
+xterm*sixelScrolling: true
 
 ! See:
 ! https://bugs.launchpad.net/ubuntu/+source/x11-apps/+bug/788596
