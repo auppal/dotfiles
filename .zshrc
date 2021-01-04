@@ -78,7 +78,7 @@ zstyle :compinstall filename $HOME/.zshrc
 # Force a carrige return before the prompt.
 unsetopt promptcr
 
-export PATH=$HOME/bin:$PATH:/sbin
+export PATH=$HOME/bin:$PATH:/sbin:$HOME/.local/bin
 
 # Fix M-b and M-f of /, etc.
 export WORDCHARS=''
