@@ -1,5 +1,5 @@
 # Written by Ahsen Uppal
-# Copyright (C) 2017, Ahsen Uppal
+# Copyright (C) 2021, Ahsen Uppal
 # All rights reserved.
 #
 
@@ -7,6 +7,7 @@ case $OSTYPE in
     linux*)
         alias ls='ls --color=auto'
 	alias grep='grep --color=auto'
+	alias diff="diff --color=auto"
 	export GCC_COLORS=auto	
 	alias time='/usr/bin/time'
     ;;
@@ -214,7 +215,6 @@ paste_osc52_tmux() {
     sleep 0.05
     LBUFFER=$LBUFFER$(tmux paste)
 }
-
 
 which diff-so-fancy >& /dev/null && export GIT_PAGER="diff-so-fancy | less --tabs=4 -RFX --pattern '^(Date|added|deleted|modified):'"
 which delta >& /dev/null && export GIT_PAGER="delta --theme=ansi-dark"
