@@ -27,13 +27,20 @@ source ~/dotfiles/editor.sh
 if [ -f /etc/os-release ]; then
     source /etc/os-release
     if [ $PRETTY_NAME != "Gentoo/Linux" ]; then
-	OS_NAME=$(echo $PRETTY_NAME | cut -d ' ' -f1)' '
+	OS_NAME=$(echo $PRETTY_NAME | cut -d' ' -f1)' '
     else
-	OS_NAME=
+	OS_NAME='Gentoo '
     fi
 else
     OS_NAME=$(uname -o)' '
 fi
+
+case $OS_NAME in
+    Gentoo*) OS_COLOR='[1;30m' ;;
+    Arch*) OS_COLOR='[1;34m' ;;
+    CentOS*) OS_COLOR='[1;32m' ;;
+    *) OS_COLOR='[1;31m' ;;
+esac
 
 # set the prompt to both change window title and color the prompt
 
@@ -43,7 +50,8 @@ case $TERM in
         ;;
     screen*)
         setopt prompt_subst
-        export PS1=$'\e]0; ${LAST_CMD} %1c %m\a%n@%m \e[1;31m'$OS_NAME$'\e[1;32m%d\e[0m\n>'
+	OS_NAME='Screen+'$OS_NAME
+        export PS1=$'\e]0; ${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
 	    # See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
 	    preexec () {
                 LAST_CMD=${1}
@@ -56,7 +64,7 @@ case $TERM in
 	    ;;
     rxvt*|xterm*)
         setopt prompt_subst
-        export PS1=$'\e]0; ${LAST_CMD} %1c %m\a%n@%m \e[1;31m'$OS_NAME$'\e[1;32m%d\e[0m\n>'
+        export PS1=$'\e]0; ${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
         preexec () {
                 LAST_CMD=${1}
         }
@@ -78,7 +86,7 @@ zstyle :compinstall filename $HOME/.zshrc
 # Force a carrige return before the prompt.
 unsetopt promptcr
 
-export PATH=$HOME/bin:$PATH:/sbin:$HOME/.local/bin
+export PATH=$HOME/bin:$PATH:/sbin
 
 # Fix M-b and M-f of /, etc.
 export WORDCHARS=''
@@ -146,7 +154,7 @@ if [ $DISPLAY ] && which xclip >& /dev/null; then
     yank() { LBUFFER=$LBUFFER$(xclip -o) }
     zle -N yank
 else
-    if [[ $TERM = "rxvt-unicode-256color" || $TERM = "rxvt-unicode" || ($TERM = "xterm" && $MLTERM == "") || $TERM = "screen" || $TERM = "screen-256color" ]]; then
+    if [[ $TERM = "rxvt-unicode-256color" || ($TERM = "xterm" && $MLTERM == "") || $TERM = "screen" || $TERM = "screen-256color" ]]; then
 	# echo "osc52_paste enabled"
 	yank() { paste_osc52 }
 	zle -N yank
