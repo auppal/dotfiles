@@ -27,7 +27,7 @@ source ~/dotfiles/editor.sh
 if [ -f /etc/os-release ]; then
     source /etc/os-release
     if [ $PRETTY_NAME != "Gentoo/Linux" ]; then
-	OS_NAME=$PRETTY_NAME' '
+	OS_NAME=$(echo $PRETTY_NAME | cut -d ' ' -f1)' '
     else
 	OS_NAME=
     fi
