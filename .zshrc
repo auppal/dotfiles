@@ -51,18 +51,22 @@ case $TERM in
         ;;
     screen*)
         setopt prompt_subst
-	OS_NAME='Screen+'$OS_NAME
+	if  [ $TMUX ]; then
+	    OS_NAME='Tmux+'$OS_NAME
+	else
+	    OS_NAME='Screen+'$OS_NAME
+	fi
         export PS1=$'\e]0; ${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
-	    # See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
-	    preexec () {
-                LAST_CMD=${1}
-	            echo -ne "\ek${USER}@${HOST} $PWD ${1%% *}\e\\"
-	    }
-	    ;;
+	# See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
+	preexec () {
+            LAST_CMD=${1}
+	    echo -ne "\ek${USER}@${HOST} $PWD ${1%% *}\e\\"
+	}
+	;;
     eterm*)
         # emacs won't set window title
         export PS1=$'%n@%m \e[1;32m%d\e[0m\n>'
-	    ;;
+	;;
     rxvt*|xterm*)
         setopt prompt_subst
         export PS1=$'\e]0; ${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
