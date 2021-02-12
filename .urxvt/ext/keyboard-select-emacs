@@ -72,6 +72,7 @@ sub key_press {
 	} elsif (lc($key) eq 'g' && $event->{state} & urxvt::ControlMask) {
 		deactivate($self);
 	} elsif ($self->{search}) {
+	        # Inside a search
 		if ($keysym == 0xff1b) {
 			if ($self->{search_mode}) {
 				deactivate($self);
@@ -86,7 +87,7 @@ sub key_press {
 			} else {
 				status_area($self);
 			}
-		} elsif ($keysym == 0xff0d) {
+		} elsif ($keysym == 0xff0d) {    # Keysym Return
 			my $txt = substr($self->{search}, 1);
 			if ($txt) {
 				$self->{pattern} = ($txt =~ m/[[:upper:]]/) ? qr/\Q$txt\E/ :
@@ -135,6 +136,7 @@ sub key_press {
 				$self->selection($self->{selection});
 				$self->selection_grab($event->{time});
 			} else {
+			        warn "Copy selection";
 				my ($br, $bc, $er, $ec) = calc_span($self);
 				$ec = $self->line($er)->l if $self->{select} eq 'l';
 				$self->selection_beg($br, $bc);
@@ -152,6 +154,37 @@ sub key_press {
 			} else {
 				deactivate($self);
 			}
+		}
+		else {
+		    # XXX
+		    warn "No selection, copy surrounding word.";
+		    my ($cr, $cc) = $self->screen_cur();
+		    my $line = $self->line($cr);
+
+		    my $fwd = substr($line->t, $cc);
+		    my $back = substr($line->t, 0, $cc);
+
+		    my $cend = $line->l;
+		    if ($fwd =~ qr/\s/) { # Find the next whitespace
+			$cend = $cc + $+[0] - 1;
+		    }
+
+		    my $cbeg = $cc;
+
+		    # Find the previous whitespace
+		    # This regex is esp. tricky when there is no whitespace at beg of line.
+
+		    if ($back =~ qr/(\s)(\S+)(\s*)$/) {
+			$cbeg = $-[0] + 1;
+		    }
+		    elsif ($back =~ qr/^(\S+)(\s*)$/) {
+			$cbeg = 0;
+		    }
+
+		    $self->selection_beg($cr, $cbeg);
+		    $self->selection_end($cr, $cend);
+		    $self->selection_make($event->{time});
+		    deactivate($self);
 		}
 	} elsif ($key eq 'V') {
 		toggle_select($self, 'l');
@@ -479,11 +512,23 @@ sub activate {
 		tt_write      => \&tt_write,
 	);
 
-	if ($self->{offset} >= $line->l) {
-		$self->{offset} = $line->l > 0 ? $line->l - 1 : 0;
-		$self->screen_cur($line->coord_of($self->{offset}));
-		$self->want_refresh();
-	}
+	# The default keyboard-select extension wants to move the start cursor only
+	# when we are at the end of a line. But this fails if the user has backed up
+	# the cursor by deleting characters.
+
+	# A more predictable way is to always start at column 0 at a row above
+	# he current line.
+
+	# Start selection in a position 2 lines above the current cursor.
+	my $new_offset = $line->offset_of($self->{oldcr} - 3, $self->{oldcc});
+	$self->screen_cur($line->coord_of($new_offset));
+	$self->want_refresh();
+
+	# if ($self->{offset} >= $line->l) {
+	# 	$self->{offset} = $line->l > 0 ? $line->l - 1 : 0;
+	# 	$self->screen_cur($line->coord_of($self->{offset}));
+	# 	$self->want_refresh();
+	# }
 
 	$self->{overlay_len} = 0;
 	status_area($self);
