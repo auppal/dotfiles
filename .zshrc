@@ -37,7 +37,9 @@ else
 fi
 
 case $OS_NAME in
-    Gentoo*) OS_COLOR='[1;30m' ;;
+    Gentoo*) OS_COLOR='[1;30m'
+	     export EIX_LIMIT=0
+	     ;;
     Arch*) OS_COLOR='[1;34m' ;;
     CentOS*) OS_COLOR='[1;32m' ;;
     *) OS_COLOR='[1;31m' ;;
@@ -91,7 +93,7 @@ zstyle :compinstall filename $HOME/.zshrc
 # Force a carrige return before the prompt.
 unsetopt promptcr
 
-export PATH=$HOME/bin:$PATH:/sbin
+export PATH=$HOME/bin:$PATH:/sbin:$HOME/.local/bin
 
 # Fix M-b and M-f of /, etc.
 export WORDCHARS=''
