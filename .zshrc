@@ -53,28 +53,26 @@ case $TERM in
         ;;
     screen*)
         setopt prompt_subst
-	if  [ $TMUX ]; then
-	    OS_NAME='Tmux+'$OS_NAME
-	else
-	    OS_NAME='Screen+'$OS_NAME
-	fi
-        export PS1=$'\e]0; ${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
+	OS_NAME='Screen+'$OS_NAME
 	# See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
-	preexec () {
-            LAST_CMD=${1}
-	    echo -ne "\ek${USER}@${HOST} $PWD ${1%% *}\e\\"
-	}
+	# Set screen pane info "\ekTEXT\e\\", then window title, then print out the prompt with colors.
+        export PS1=$'\ek${LAST_CMD} %1c %m\a%n@%m\e\\\e]0;${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
+	preexec () { LAST_CMD=${1} }
 	;;
+    tmux*)
+        setopt prompt_subst
+	OS_NAME='Tmux+'$OS_NAME
+        export PS1=$'\e]0;${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
+	preexec () { LAST_CMD=${1} }
+	;;    
     eterm*)
         # emacs won't set window title
         export PS1=$'%n@%m \e[1;32m%d\e[0m\n>'
 	;;
     rxvt*|xterm*)
         setopt prompt_subst
-        export PS1=$'\e]0; ${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
-        preexec () {
-                LAST_CMD=${1}
-        }
+        export PS1=$'\e]0;${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
+        preexec () { LAST_CMD=${1} }
         ;;
     *)
         export PS1=$'%n@%m %d\n>'
