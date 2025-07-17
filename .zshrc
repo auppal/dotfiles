@@ -22,6 +22,7 @@ alias lf='ls -FA'
 alias ll='ls -lArt'
 alias l='ls -lArt'
 alias xo=xdg-open
+alias cdiff="diff --color=always"
 
 source ~/dotfiles/editor.sh
 
@@ -49,33 +50,33 @@ esac
 
 case $TERM in
     cons25*|linux*)
-        export PS1=$'%n@%m \e[1;32m%d\e[0m\n>'
+        export PS1=$'%n@%m \e[1;32m%~\e[0m\n>'
         ;;
     screen*)
         setopt prompt_subst
 	OS_NAME='Screen+'$OS_NAME
 	# See: http://unix.stackexchange.com/questions/7380/force-title-on-gnu-screen
 	# Set screen pane info "\ekTEXT\e\\", then window title, then print out the prompt with colors.
-        export PS1=$'\ek${LAST_CMD} %1c %m\a%n@%m\e\\\e]0;${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
+        export PS1=$'\ek${LAST_CMD} %1c %m\a%n@%m\e\\\e]0;${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%~\e[0m\n>'
 	preexec () { LAST_CMD=${1} }
 	;;
     tmux*)
         setopt prompt_subst
 	OS_NAME='Tmux+'$OS_NAME
-        export PS1=$'\e]0;${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
+        export PS1=$'\e]0;${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%~\e[0m\n>'
 	preexec () { LAST_CMD=${1} }
 	;;    
     eterm*)
         # emacs won't set window title
-        export PS1=$'%n@%m \e[1;32m%d\e[0m\n>'
+        export PS1=$'%n@%m \e[1;32m%~\e[0m\n>'
 	;;
     rxvt*|xterm*)
         setopt prompt_subst
-        export PS1=$'\e]0;${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%d\e[0m\n>'
+        export PS1=$'\e]0;${LAST_CMD} %1c %m\a%n@%m \e'$OS_COLOR$OS_NAME$'\e[1;32m%~\e[0m\n>'
         preexec () { LAST_CMD=${1} }
         ;;
     *)
-        export PS1=$'%n@%m %d\n>'
+        export PS1=$'%n@%m %~\n>'
 	    ;;
 esac
 
@@ -222,3 +223,17 @@ paste_osc52_tmux() {
 
 which diff-so-fancy >& /dev/null && export GIT_PAGER="diff-so-fancy | less --tabs=4 -RFX --pattern '^(Date|added|deleted|modified):'"
 which delta >& /dev/null && export GIT_PAGER="delta --theme=ansi-dark"
+
+# Override invocation of '<':
+export READNULLCMD=$PAGER
+
+
+sixel_view() {
+    if  [[ $TERM = 'screen' || $TERM = "screen-256color" ]]; then
+	img2sixel -P -I $*
+    else
+	img2sixel -I $*
+    fi
+}
+
+alias ii=sixel_view
